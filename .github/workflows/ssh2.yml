@@ -5,7 +5,7 @@
 # Youtube Channel: https://goo.gl/fvkdwm 
 #=================================================
 ######touch /tmp/keepalive
-name: Build_ssh2
+name: Build_sshv2
 
 # Add a button to trigger the workflow
 on: 
