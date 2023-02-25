@@ -86,11 +86,12 @@ jobs:
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x ./customize.sh && ./customize.sh
 
-    - name : setup-python
-      uses: actions/setup-python@v4
+    - name: setup-python
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
       with:
-        python-version: '3.10' 
-      run: python my_script.py
+        python-version: '3.10'
+    - run: python my_script.py
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
