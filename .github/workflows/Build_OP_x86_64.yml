@@ -104,3 +104,7 @@ jobs:
       with:
         name: OpenWrt
         path: openwrt/bin/targets/
+     
+    - name : disk space check
+      run: df -h
+      continue-on-error: true    
