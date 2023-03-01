@@ -101,6 +101,7 @@ jobs:
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
+      continue-on-error: true
       with:
         name: OpenWrt
         path: openwrt/bin/targets/
