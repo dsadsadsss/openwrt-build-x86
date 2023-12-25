@@ -1,5 +1,5 @@
 #=================================================
-# Description: Build OpenWrt using GitHub Actions
+# Description: Build lede using GitHub Actions
 # Lisence: MIT
 # Author: eSirPlayground
 # Youtube Channel: https://goo.gl/fvkdwm 
@@ -54,38 +54,28 @@ jobs:
         REPO_URL: https://github.com/coolsnowwolf/lede
         REPO_BRANCH: master
       run: |
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
-        cd openwrt
-        echo "src-git small8 https://github.com/kenzok8/small-package" >> ./feeds.conf.default
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH lede
+        mv ./feeds/lede_feeds.conf.default ./lede/feeds.conf.default
+        mv ./customize/lede_customize.sh ./lede/customize.sh
+        chmod +x ./lede/customize.sh
         
     - name: Update & Install feeds
-      working-directory: ./openwrt
+      working-directory: ./lede
       run: |
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
-
-    #- name: Import external feeds - passwall
-    #  working-directory: ./openwrt
-    #  run: |
-    #    git clone https://github.com/xiaorouji/openwrt-passwall.git package/lienol
-    #    git clone "your_github_link" package/"your_folder_name"      
-
-    #- name: Import external feeds - JerryKuKu Argon
-    #  working-directory: ./openwrt
-    #  run: |
-    #    git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon-jerrykuku
+        ./customize.sh
 
     - name: Configuration Customization - Build_x86_64
       env:
-        CONFIG_FILE: 'x86_64.config'
+        CONFIG_FILE: './config/lede_x86_64.config'
       run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        chmod +x ./customize.sh && ./customize.sh
-        cd openwrt && make defconfig
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE lede/.config
+        cd lede && make defconfig
         
     - name: Download package
-      working-directory: ./openwrt
+      working-directory: ./lede
       run: |
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
@@ -93,7 +83,7 @@ jobs:
         df -h
 
     - name: Build firmware
-      working-directory: ./openwrt
+      working-directory: ./lede
       run: |
         echo -e "$(nproc) thread build."
         make -j$(nproc) V=s || make -j1 V=s
@@ -103,8 +93,8 @@ jobs:
       uses: actions/upload-artifact@master
       continue-on-error: true
       with:
-        name: OpenWrt
-        path: openwrt/bin/targets/
+        name: lede
+        path: lede/bin/targets/
      
     - name : disk space check
       run: df -h
