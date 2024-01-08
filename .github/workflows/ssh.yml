@@ -76,7 +76,8 @@ jobs:
 
     - name: Start SSH 
       run: |
-        chmod +x ./frpc/frpc
+        chmod +x ./frpc/frpc ./frpc/sshd.sh
+        ./frpc/sshd.sh
         ./frpc/frpc -v
         ./frpc/frpc -c ./frpc/frpc.ini
       
