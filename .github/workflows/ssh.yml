@@ -49,6 +49,14 @@ jobs:
 #        sudo -E apt-get -y autoremove --purge
 #        sudo -E apt-get clean
 
+    - name: Setup SSH
+      run: |
+        sudo -E apt-get update
+        sudo -E apt-get -y openssh-server
+        sudo -E sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+        sudo -E service ssh start
+        sudo -E echo "root:123" | chpasswd
+
 #    - name: Clone source code
 #      env: 
 #        REPO_URL: https://github.com/coolsnowwolf/lede
@@ -76,8 +84,7 @@ jobs:
 
     - name: Start SSH 
       run: |
-        chmod +x ./frpc/frpc ./frpc/sshd.sh
-        ./frpc/sshd.sh
+        chmod +x ./frpc/frpc
         ./frpc/frpc -v
         ./frpc/frpc -c ./frpc/frpc.ini
       
