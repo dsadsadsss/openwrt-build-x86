@@ -51,11 +51,11 @@ jobs:
 
     - name: Setup SSH
       run: |
-        sudo -E apt-get update
-        sudo -E apt-get -y openssh-server
-        sudo -E sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-        sudo -E service ssh start
-        sudo -E echo "root:123" | chpasswd
+        sudo apt-get update
+        sudo apt-get -y openssh-server
+        sudo sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+        sudo service ssh start
+        sudo echo "root:123" | chpasswd
 
 #    - name: Clone source code
 #      env: 
