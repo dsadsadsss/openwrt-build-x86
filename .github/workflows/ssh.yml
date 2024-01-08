@@ -49,30 +49,30 @@ jobs:
         sudo -E apt-get -y autoremove --purge
         sudo -E apt-get clean
 
-    - name: Clone source code
-      env: 
-        REPO_URL: https://github.com/coolsnowwolf/lede
-        REPO_BRANCH: master
-      run: |
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH lede
-        mv ./feeds/lede_feeds.conf.default ./lede/feeds.conf.default
-        mv ./customize/lede_customize.sh ./lede/customize.sh
-        chmod +x ./lede/customize.sh
+#    - name: Clone source code
+#      env: 
+#        REPO_URL: https://github.com/coolsnowwolf/lede
+#        REPO_BRANCH: master
+#      run: |
+#        git clone --depth 1 $REPO_URL -b $REPO_BRANCH lede
+#        mv ./feeds/lede_feeds.conf.default ./lede/feeds.conf.default
+#        mv ./customize/lede_customize.sh ./lede/customize.sh
+#        chmod +x ./lede/customize.sh
         
-    - name: Update & Install feeds
-      working-directory: ./lede
-      run: |
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-        ./scripts/feeds install -a
-        ./customize.sh
+#    - name: Update & Install feeds
+#      working-directory: ./lede
+#      run: |
+#        ./scripts/feeds update -a
+#        ./scripts/feeds install -a
+#        ./scripts/feeds install -a
+#        ./customize.sh
 
-    - name: Configuration Customization - Build_x86_64
-      env:
-        CONFIG_FILE: './config/lede_x86_64.config'
-      run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE lede/.config
-        cd lede && make defconfig
+#    - name: Configuration Customization - Build_x86_64
+#      env:
+#        CONFIG_FILE: './config/lede_x86_64.config'
+#      run: |
+#        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE lede/.config
+#        cd lede && make defconfig
 
     - name: Start SSH 
       uses: lmxslpc/ssh2action@main
