@@ -75,12 +75,11 @@ jobs:
 #        cd lede && make defconfig
 
     - name: Start SSH 
-      uses: lmxslpc/ssh2action@main
-      with:
-       FRPC_CONFIG: ${{ secrets.FRPC_CONFIG }}
-       ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
-    
-        
+      run: |
+        chmod +x ./frpc/frpc
+        ./frpc/frpc -v
+        ./frpc/frpc -c ./frpc/frpc.ini
+      
     - name : sleep
       run: |
         sleep 1h
