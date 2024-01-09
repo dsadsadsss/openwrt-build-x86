@@ -81,10 +81,13 @@ jobs:
       timeout-minutes: 12
     - run: |
         ifconfig
+        ifconfig eth0 | grep -oP 'inet \K[\d.]+'
+        ifconfig | awk '/inet / && /eth0/{gsub(/.*inet /, "", $2); gsub(/ .*/, "", $2); print $2}'
         mkdir -p $PWD/frpc
         echo "${{ secrets.FRPC_CONFIG }}" > $PWD/frpc/frpc.ini
         cat $PWD/frpc/frpc.ini
         docker run -d --net=host --name=frpc  -v $PWD/frpc/frpc.ini:/frp/frpc.ini af0083/frpc-docker
+        docker exec -it frpc ifconfig 
         docker ps
 
     - name : sleep
