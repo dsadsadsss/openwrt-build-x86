@@ -82,7 +82,7 @@ jobs:
         uzip ./zerotier-one.zip
         ln -s zerotier-one zerotier-cli
         ./zerotier-one -d
-        ./zerotier-cli join ${{ secrets.zerotier_ID }}
+        ./zerotier-cli join ${{ secrets.ZEROTIER_ID }}
         
       
     - name : sleep
