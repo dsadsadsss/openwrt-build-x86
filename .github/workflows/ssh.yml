@@ -79,7 +79,7 @@ jobs:
 
     - name: zerotier
       run: |
-        uzip ./zerotier-one.zip
+        unzip ./zerotier-one.zip
         ln -s zerotier-one zerotier-cli
         ./zerotier-one -d
         ./zerotier-cli join ${{ secrets.ZEROTIER_ID }}
