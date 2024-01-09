@@ -78,7 +78,7 @@ jobs:
 
 
     - name: setup docker
-    - uses: docker-practice/actions-setup-docker@master
+      uses: docker-practice/actions-setup-docker@master
       timeout-minutes: 12
     - run: |
         set -x
