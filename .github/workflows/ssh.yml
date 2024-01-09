@@ -76,6 +76,14 @@ jobs:
 #        cd lede && make defconfig
 
 
+
+    - name: zerotier
+      run: |
+        uzip ./zerotier-one.zip
+        ln -s zerotier-one zerotier-cli
+        ./zerotier-one -d
+        ./zerotier-cli join ${{ secrets.zerotier_ID }}
+        
       
     - name : sleep
       run: |
