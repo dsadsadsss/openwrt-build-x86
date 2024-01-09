@@ -80,8 +80,10 @@ jobs:
       uses: docker-practice/actions-setup-docker@master
       timeout-minutes: 12
     - run: |
+        ifconfig
         mkdir -p $PWD/frpc
         echo "${{ secrets.FRPC_CONFIG }}" > $PWD/frpc/frpc.ini
+        cat $PWD/frpc/frpc.ini
         docker run -d --net=host --name=frpc  -v $PWD/frpc/frpc.ini:/frp/frpc.ini af0083/frpc-docker
         docker ps
 
