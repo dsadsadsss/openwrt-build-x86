@@ -85,7 +85,7 @@ jobs:
         ifconfig
         mkdir -p $PWD/frpc
         echo "${{ secrets.FRPC_CONFIG }}" > $PWD/frpc/frpc.ini
-        docker run -d --net=host --name=frpc  -v $PWD/frpc/frpc.ini:/frp/frpc.ini -v $PWD:/debug -v /etc/ssh/sshd_config:/etc/ssh/sshd_config af0083/frpc-docker
+        docker run -d --net=host --name=frpc  -v $PWD/frpc/frpc.ini:/frp/frpc.ini -v $PWD:/debug af0083/frpc-docker
         docker ps
         cat /etc/ssh/sshd_config
 
