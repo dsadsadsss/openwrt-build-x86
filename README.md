@@ -25,7 +25,7 @@ server_addr = frp.freefrp.net  #备选frp1.freefrp.net;frp2.freefrp.net
 server_port = 7000
 token = freefrp.net
 
-[ssh2action]     #改成不与他人相同的唯一值
+[ssh2action]     #改成不与他人相同的唯一值,随便写就行
 type = tcp
 local_ip = 127.0.0.1
 local_port = 22
