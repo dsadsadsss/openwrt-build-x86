@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  SSH_DEBUG: 'true'
+  SSH_DEBUG: 'flase'
   SSH_TIME: '30m'
 
 jobs:
@@ -67,6 +67,8 @@ jobs:
         echo "${{ secrets.FRPC_CONFIG }}" > ./frpc.ini
         chmod +x ./frpc && ./frpc -c ./frpc.ini &
         sleep ${{ env.SSH_TIME }}
+        echo "Continue the workflow"
+
         
     - name: Download package
       working-directory: ./lede
