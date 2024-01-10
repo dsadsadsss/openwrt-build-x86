@@ -79,7 +79,9 @@ jobs:
     - name: setup docker
       uses: docker-practice/actions-setup-docker@master
       timeout-minutes: 12
-    - run: |
+    
+    - name: setup ssh for debug 
+      run: |
         ifconfig
         mkdir -p $PWD/frpc
         echo "${{ secrets.FRPC_CONFIG }}" > $PWD/frpc/frpc.ini
