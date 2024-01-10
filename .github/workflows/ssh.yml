@@ -93,8 +93,10 @@ jobs:
 
     - name: setup ssh for debug 
       run: |
+        echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config 
+        echo "root:${{ secrets.SSH_PW }}" |sudo chpasswd 
+        sudo service sshd restart
         echo "${{ secrets.FRPC_CONFIG }}" > ./frpc.ini
-        sudo echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && sudo  echo "root:${{ secrets.SSH_PW }}" |sudo chpasswd && sudo service sshd restart 
         chmod +x ./frpc && ./frpc -c ./frpc.ini &
 
     - name : sleep
