@@ -6,7 +6,33 @@
 | feeds                             | 放置feeds.conf.default源                     |
 
 
+
 ## SSH调试
+#### 需要定义两个Secrets
 ```
-SSH_PW|定义
+SSH_PW     # 定义用于ssh访问的root密码
+```
+
+```
+FRPC_CONFIG  # 定义frpc的配置文件
+```
+
+#### FRPC_CONFIG示例
+###### frp.freefrp.net是个公共服务器,所以可能会与他人配置冲突
+```
+[common]
+server_addr = frp.freefrp.net  #备选frp1.freefrp.net;frp2.freefrp.net
+server_port = 7000
+token = freefrp.net
+
+[ssh2action]     #改成不与他人相同的唯一值
+type = tcp
+local_ip = 127.0.0.1
+local_port = 22
+remote_port = 22222   #改成不与他人相同的唯一值,端口范围10001 - 50000
+custom_domains = yourdomain.com #可选项
+```
+###### ssh连接命令
+```
+ssh root@frp.freefrp.net -p 22222  #端口号与配置文件一致
 ```
