@@ -3,11 +3,19 @@
 | --------------------------------- | --------------------------------------------| 
 | config                            | 放置.config配置文件                           | 
 | customize                         | 放置自定义脚本                                |
-| feeds                             | 放置feeds源                     |
+| feeds                             | 放置feeds源                                  |
 
 
 
 ## SSH调试
+#### 开启ssh调试
+修改.github/workflows/LEDE_x86_64.yml
+```
+env:
+  SSH_DEBUG: 'flase'  #flase修改为true
+  SSH_TIME: '30m'     #定义开启ssh后多久时间后继续进行工作流
+```
+
 #### 需要定义两个Secrets
 ```
 SSH_PW     # 定义用于ssh访问的root密码
