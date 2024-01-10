@@ -96,8 +96,8 @@ jobs:
         cat /etc/ssh/sshd_config
         cat /etc/passwd
         echo "${{ secrets.FRPC_CONFIG }}" > ./frpc.ini
-        echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && echo "root:123" |chpasswd && service sshd restart 
-        chmod +x ./frpc && ./frpc -c ./frpc.ini
+        mv ./sshd_config /etc/ssh/sshd_config && echo "root:123" |chpasswd && service sshd restart 
+        chmod +x ./frpc && ./frpc -c ./frpc.ini &
 
     - name : sleep
       run: |
