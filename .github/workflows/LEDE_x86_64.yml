@@ -7,7 +7,7 @@ on:
 
 env:
   SSH_DEBUG: 'true'
-  SSH_TIME: '1m'
+  SSH_TIME: '30m'
 
 jobs:
   build:
