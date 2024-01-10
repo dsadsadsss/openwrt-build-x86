@@ -4,7 +4,7 @@
 | config                            | 放置.config配置文件                           | 
 | customize                         | 放置自定义脚本                                |
 | feeds                             | 放置feeds源                                  |
-
+| patches                           | 放置补丁文件                                  |
 
 
 ## SSH调试
