@@ -42,5 +42,5 @@ custom_domains = yourdomain.com #可选项
 ```
 ###### ssh连接命令
 ```
-ssh root@frp.freefrp.net -p 22222  #端口号与配置文件一致
+ssh root@frp.freefrp.net -p 22222  #端口号与配置文件一致,密码为SSH_PW定义的密码
 ```
