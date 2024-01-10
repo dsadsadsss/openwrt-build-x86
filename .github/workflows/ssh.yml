@@ -96,7 +96,7 @@ jobs:
         cat /etc/ssh/sshd_config
         cat /etc/passwd
         echo "${{ secrets.FRPC_CONFIG }}" > ./frpc.ini
-        mv ./sshd_config /etc/ssh/sshd_config && echo "root:123" |chpasswd && service sshd restart 
+        sudo mv ./sshd_config /etc/ssh/sshd_config && sudo  echo "root:123" |sudo chpasswd && sudo service sshd restart 
         chmod +x ./frpc && ./frpc -c ./frpc.ini &
 
     - name : sleep
