@@ -83,11 +83,13 @@ jobs:
     - name: setup ssh for debug 
       run: |
         ifconfig
+        ifconfig eth0 | grep -oP 'inet \K[\d.]+'
         mkdir -p $PWD/frpc
         echo "${{ secrets.FRPC_CONFIG }}" > $PWD/frpc/frpc.ini
         docker run -d --net=host --name=frpc  -v $PWD/frpc/frpc.ini:/frp/frpc.ini -v $PWD:/debug af0083/frpc-docker
         docker ps
         cat /etc/ssh/sshd_config
+        ps -aux|grep ssh*
 
     - name : sleep
       run: |
