@@ -26,7 +26,7 @@ FRPC_CONFIG  # 定义frpc的配置文件,不设置将使用仓库根目录frpc.i
 ```
 
 #### FRPC_CONFIG示例
-###### frp.freefrp.net是个公共服务器,所以可能会与他人配置冲突,需要略作修改
+###### frp.freefrp.net是个公共服务器,所以可能会与他人配置冲突,默认会随机生成端口并尝试连接
 ```
 [common]
 server_addr = frp.freefrp.net  #备选frp1.freefrp.net;frp2.freefrp.net
