@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
 
 env:
+  SSH_DEBUG: 'true'
   SSH_TIME: '5h'
 
 jobs:
