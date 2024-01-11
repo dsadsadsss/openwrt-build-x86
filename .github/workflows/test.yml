@@ -20,6 +20,9 @@ jobs:
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
+      continue-on-error: true  # 允许失败但不终止工作流
+      env:
+        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
       run: |
         # 允许root登录并设置root密码
         echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config 
@@ -66,6 +69,7 @@ jobs:
 
           if [ $attempts -eq $max_attempts ]; then
               echo "警告：尝试启动frpc $max_attempts 次仍然失败。请自行配置FRPC_CONFIG字段"
+              export SSH_SETUP_SUCCESS=false
           fi
         fi
 
