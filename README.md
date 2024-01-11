@@ -16,7 +16,7 @@ env:
   SSH_TIME: '30m'     #定义开启ssh后多久时间后继续进行工作流
 ```
 
-#### 需要定义两个Secrets
+#### 定义两个Secrets
 ```
 SSH_PW     # 定义用于ssh访问的root密码,不设置默认123
 ```
