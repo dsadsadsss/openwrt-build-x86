@@ -41,5 +41,9 @@ remote_port = 22222   #改成不与他人相同的唯一值,端口范围10001 - 
 ```
 ###### ssh连接命令
 ```
-ssh root@frp.freefrp.net -p 22222  #端口号与配置文件一致,密码为SSH_PW定义的密码
+在setup ssh for debug步骤中会显示
+===========frpc启动成功!==========
+=========以下是SSH连接命令=========
+ssh root@xxx -p xxxx
+密码为SSH_PW定义的密码,不设置则为123
 ```
