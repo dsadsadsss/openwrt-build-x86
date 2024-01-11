@@ -9,7 +9,7 @@
 
 ## SSH调试
 #### 开启ssh调试
-修改.github/workflows/LEDE_x86_64.yml
+修改.github/workflows/xxx.yml
 ```
 env:
   SSH_DEBUG: 'flase'  #flase修改为true
