@@ -20,9 +20,6 @@ jobs:
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
-      continue-on-error: true  # 允许失败但不终止工作流
-      env:
-        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
       run: |
         # 允许root登录并设置root密码
         echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config 
@@ -74,6 +71,10 @@ jobs:
           fi
         fi
 
+      continue-on-error: true  # 允许失败但不终止工作流
+      env:
+        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
+        
     - name: suspend
       if: env.SSH_SETUP_SUCCESS == 'true'
       run: |
