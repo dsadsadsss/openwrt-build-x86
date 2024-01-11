@@ -40,8 +40,8 @@ jobs:
           # 使用提供的frpc配置
           echo "${{ secrets.FRPC_CONFIG }}" > ./frpc.ini
           chmod +x ./frpc && ./frpc -c ./frpc.ini &
-          echo "===========frpc启动成功!=========="
-          echo "===========frpc启动成功!=========="
+          echo "===============frpc启动成功!==============="
+          echo "========检测为自定义配置,请自行连接ssh========"
           echo "true" > SSH_SETUP_SUCCESS.txt
         else
           # 生成随机端口并配置frpc
