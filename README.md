@@ -2,7 +2,7 @@
 | 目录                              |         作用                                 |
 | --------------------------------- | --------------------------------------------| 
 | config                            | 放置.config配置文件                           | 
-| customize                         | 放置自定义脚本                                |
+| customize                         | 放置自定义脚本及文件                               |
 | feeds                             | 放置feeds源                                  |
 | patches                           | 放置补丁文件                                  |
 
@@ -18,11 +18,11 @@ env:
 
 #### 需要定义两个Secrets
 ```
-SSH_PW     # 定义用于ssh访问的root密码
+SSH_PW     # 定义用于ssh访问的root密码,不设置默认123
 ```
 
 ```
-FRPC_CONFIG  # 定义frpc的配置文件
+FRPC_CONFIG  # 定义frpc的配置文件,不设置将使用仓库根目录frpc.ini默认配置文件
 ```
 
 #### FRPC_CONFIG示例
