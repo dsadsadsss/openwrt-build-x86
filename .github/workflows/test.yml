@@ -61,6 +61,7 @@ jobs:
               echo "=========以下是SSH连接命令========="
               echo "ssh root@$(grep -E 'server_addr\s*=' frpc.ini | cut -d'=' -f2 | tr -d '[:space:]') -p $random_port"
               export SSH_SETUP_SUCCESS=true
+              echo "SSH_SETUP_SUCCESS value: ${{ env.SSH_SETUP_SUCCESS }}"
               break
             else
               echo "错误：frpc启动失败!重试中..."
@@ -72,6 +73,7 @@ jobs:
           if [ $attempts -eq $max_attempts ]; then
               echo "警告：尝试启动frpc $max_attempts 次仍然失败。请自行配置FRPC_CONFIG字段"
               export SSH_SETUP_SUCCESS=false
+              echo "SSH_SETUP_SUCCESS value: ${{ env.SSH_SETUP_SUCCESS }}"
           fi
         fi
         
