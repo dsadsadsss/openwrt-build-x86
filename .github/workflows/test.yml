@@ -42,7 +42,7 @@ jobs:
           chmod +x ./frpc && ./frpc -c ./frpc.ini &
           echo "===========frpc启动成功!=========="
           echo "===========frpc启动成功!=========="
-          export SSH_SETUP_SUCCESS=true
+          echo "true" > SSH_SETUP_SUCCESS.txt
         else
           # 生成随机端口并配置frpc
           max_attempts=10
@@ -60,8 +60,7 @@ jobs:
               echo "===========frpc启动成功!=========="
               echo "=========以下是SSH连接命令========="
               echo "ssh root@$(grep -E 'server_addr\s*=' frpc.ini | cut -d'=' -f2 | tr -d '[:space:]') -p $random_port"
-              export SSH_SETUP_SUCCESS=true
-              echo "SSH_SETUP_SUCCESS value: ${{ env.SSH_SETUP_SUCCESS }}"
+              echo "true" > SSH_SETUP_SUCCESS.txt
               break
             else
               echo "错误：frpc启动失败!重试中..."
@@ -72,15 +71,14 @@ jobs:
 
           if [ $attempts -eq $max_attempts ]; then
               echo "警告：尝试启动frpc $max_attempts 次仍然失败。请自行配置FRPC_CONFIG字段"
-              export SSH_SETUP_SUCCESS=false
-              echo "SSH_SETUP_SUCCESS value: ${{ env.SSH_SETUP_SUCCESS }}"
+              echo "flase" > SSH_SETUP_SUCCESS.txt
           fi
         fi
         
     - name: suspend
       run: |
-        echo "SSH_SETUP_SUCCESS value: ${{ env.SSH_SETUP_SUCCESS }}"
-        if [ "${{ env.SSH_SETUP_SUCCESS }}" == 'true' ]; then
+        SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
+        if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
           echo "${{ env.SSH_TIME }}后,将继续进行工作流"
           sleep ${{ env.SSH_TIME }}
           echo "${{ env.SSH_TIME }}时间结束,继续进行工作流"
