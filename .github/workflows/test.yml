@@ -40,6 +40,8 @@ jobs:
           # 使用提供的frpc配置
           echo "${{ secrets.FRPC_CONFIG }}" > ./frpc.ini
           chmod +x ./frpc && ./frpc -c ./frpc.ini &
+          echo "===========frpc启动成功!=========="
+          echo "===========frpc启动成功!=========="
         else
           # 生成随机端口并配置frpc
           max_attempts=10
@@ -50,7 +52,6 @@ jobs:
             cp frpc.ini.example frpc.ini
             sed -i "s/\[ssh2action\]/\[ssh2action$random_port\]/g" frpc.ini
             sed -i "s/remote_port = 22222/remote_port = $random_port/g" frpc.ini
-            echo "remote_port = $random_port=" > ./frpc.ini
             chmod +x ./frpc && ./frpc -c ./frpc.ini > ./frpc.log 2>&1 &
             sleep 5
             # 检查frpc启动错误
