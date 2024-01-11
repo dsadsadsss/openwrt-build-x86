@@ -41,7 +41,7 @@ remote_port = 22222   #改成不与他人相同的唯一值,端口范围10001 - 
 ```
 ###### ssh连接命令
 ```
-在setup ssh for debug步骤中会显示
+在工作流的setup ssh for debug步骤中会显示
 ===========frpc启动成功!==========
 =========以下是SSH连接命令=========
 ssh root@xxx -p xxxx
