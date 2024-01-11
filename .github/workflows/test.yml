@@ -51,18 +51,16 @@ jobs:
             chmod +x ./frpc && ./frpc -c ./frpc.ini > ./frpc.log 2>&1 &
             sleep 5
             # 检查frpc启动错误
-            if grep -q "start error" ./frpc.log; then
-              echo "错误：frpc启动失败!重试中..."
-              pkill frpc
-              attempts=$((attempts+1))
-            else
+            if grep -q "start proxy success" ./frpc.log; then
               echo "===========frpc启动成功!=========="
               echo "=========以下是SSH连接命令========="
               echo "ssh root@$(grep -E 'server_addr\s*=' frpc.ini | cut -d'=' -f2 | tr -d '[:space:]') -p $random_port"
-              echo "${{ env.SSH_TIME }}后,将继续进行工作流"
-              sleep ${{ env.SSH_TIME }}
-              echo "${{ env.SSH_TIME }}时间结束,继续进行工作流"
+              export SSH_SETUP_SUCCESS=true
               break
+            else
+              echo "错误：frpc启动失败!重试中..."
+              pkill frpc
+              attempts=$((attempts+1))
             fi
           done
 
@@ -70,6 +68,13 @@ jobs:
               echo "警告：尝试启动frpc $max_attempts 次仍然失败。请自行配置FRPC_CONFIG字段"
           fi
         fi
+
+    - name: suspend
+      if: env.SSH_SETUP_SUCCESS == 'true'
+      run: |
+        echo "${{ env.SSH_TIME }}后,将继续进行工作流"
+        sleep ${{ env.SSH_TIME }}
+        echo "${{ env.SSH_TIME }}时间结束,继续进行工作流"
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
