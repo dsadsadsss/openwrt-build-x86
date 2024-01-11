@@ -22,7 +22,7 @@ SSH_PW     # 定义用于ssh访问的root密码,不设置默认123
 ```
 
 ```
-FRPC_CONFIG  # 定义frpc的配置文件,不设置将使用仓库根目录frpc.ini默认配置文件
+FRPC_CONFIG  # 定义frpc的配置文件,不设置将使用公共frp服务器
 ```
 
 #### FRPC_CONFIG示例
