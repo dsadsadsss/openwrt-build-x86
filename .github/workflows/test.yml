@@ -20,6 +20,9 @@ jobs:
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
+      continue-on-error: true  # 允许失败但不终止工作流
+      env:
+        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
       run: |
         # 允许root登录并设置root密码
         echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config 
@@ -39,6 +42,7 @@ jobs:
           chmod +x ./frpc && ./frpc -c ./frpc.ini &
           echo "===========frpc启动成功!=========="
           echo "===========frpc启动成功!=========="
+          export SSH_SETUP_SUCCESS=true
         else
           # 生成随机端口并配置frpc
           max_attempts=10
@@ -70,17 +74,17 @@ jobs:
               export SSH_SETUP_SUCCESS=false
           fi
         fi
-
-      continue-on-error: true  # 允许失败但不终止工作流
-      env:
-        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
         
     - name: suspend
-      if: env.SSH_SETUP_SUCCESS == 'true'
       run: |
-        echo "${{ env.SSH_TIME }}后,将继续进行工作流"
-        sleep ${{ env.SSH_TIME }}
-        echo "${{ env.SSH_TIME }}时间结束,继续进行工作流"
+        echo "SSH_SETUP_SUCCESS value: ${{ env.SSH_SETUP_SUCCESS }}"
+        if [ "${{ env.SSH_SETUP_SUCCESS }}" == 'true' ]; then
+          echo "${{ env.SSH_TIME }}后,将继续进行工作流"
+          sleep ${{ env.SSH_TIME }}
+          echo "${{ env.SSH_TIME }}时间结束,继续进行工作流"
+        else
+          echo "frpc启动失败，跳过 suspend 步骤"
+        fi
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
