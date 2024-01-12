@@ -39,7 +39,7 @@ SSH_PW     # 用于定义ssh访问的root密码,不设置默认123
 ```
 
 ```
-FRPC_CONFIG  # 用于定义frpc的配置文件,不设置将自动尝试使用公共frp服务器
+FRPC_CONFIG  # 用于定义frpc的配置文件,不设置将自动尝试使用公共frp服务器并生成SSH连接命令
 ```
 
 #### FRPC_CONFIG示例
