@@ -24,20 +24,15 @@ env:
 
 #### 自定义选项
 ```
-1.你fork的 GitHub 仓库。
+1.点击仓库的"Settings"
 
-2.点击 "Settings"： 在仓库页面右上角，点击 "Settings"（设置）。
+2.选择 "Actions secrets and variables"
 
-3.选择 "Secrets"： 在左侧菜单中，选择 "Secrets"。
+3.点击 "New repository secret"
 
-4.点击 "New repository secret"： 在 "Secrets" 页面，点击右上角的 "New repository secret" 按钮。
-
-5.填写 Secret 信息： 在弹出的对话框中，填写以下信息：
-
-    Name（名称）： 给你的 Secret 一个简洁明了的名称，如 "SSH_PW"。
-    Value（值）： 输入 Secret 的具体值，比如密码或 API 密钥。
-
-点击 "Add secret"： 填写完信息后，点击 "Add secret" 按钮保存。
+4.填写 Secret 信息：
+  Name（名称）：
+  Value（值）：
 ```
 ```
 SSH_PW     # 用于定义ssh访问的root密码,不设置默认123
