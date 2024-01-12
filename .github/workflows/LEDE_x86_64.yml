@@ -8,10 +8,10 @@ on:
 env:
   PROJECT: 'lede'
   TARGET: 'x86_64'
-  SSH_DEBUG: 'flase'
-  SSH_TIME: '30m'
   REPO_URL: 'https://github.com/coolsnowwolf/lede'
   REPO_BRANCH: 'master'
+  SSH_DEBUG: 'flase'
+  SSH_TIME: '30m'
 
 jobs:
   build:
@@ -55,7 +55,7 @@ jobs:
         ./scripts/feeds install -a
         ./customize.sh
 
-    - name: Configuration Customization - Build_x86_64
+    - name: Configuration Customization - Build_${{ env.PROJECT }}_${{ env.TARGET }}
       env:
         CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
       run: |
