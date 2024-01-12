@@ -14,7 +14,7 @@
 
 
 ## SSH调试
-#### 开启ssh调试
+#### 开启ssh调试功能
 修改.github/workflows/xxx.yml
 ```
 env:
@@ -22,13 +22,29 @@ env:
   SSH_TIME: '30m'     #定义开启ssh后多久时间后继续进行工作流
 ```
 
-#### 定义两个Secrets
+#### 自定义选项
 ```
-SSH_PW     # 定义用于ssh访问的root密码,不设置默认123
+1.你fork的 GitHub 仓库。
+
+2.点击 "Settings"： 在仓库页面右上角，点击 "Settings"（设置）。
+
+3.选择 "Secrets"： 在左侧菜单中，选择 "Secrets"。
+
+4.点击 "New repository secret"： 在 "Secrets" 页面，点击右上角的 "New repository secret" 按钮。
+
+5.填写 Secret 信息： 在弹出的对话框中，填写以下信息：
+
+    Name（名称）： 给你的 Secret 一个简洁明了的名称，如 "SSH_PW"。
+    Value（值）： 输入 Secret 的具体值，比如密码或 API 密钥。
+
+点击 "Add secret"： 填写完信息后，点击 "Add secret" 按钮保存。
+```
+```
+SSH_PW     # 用于定义ssh访问的root密码,不设置默认123
 ```
 
 ```
-FRPC_CONFIG  # 定义frpc的配置文件,不设置将自动尝试使用公共frp服务器
+FRPC_CONFIG  # 用于定义frpc的配置文件,不设置将自动尝试使用公共frp服务器
 ```
 
 #### FRPC_CONFIG示例
