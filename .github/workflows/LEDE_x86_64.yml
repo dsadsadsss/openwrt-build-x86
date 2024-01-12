@@ -6,9 +6,12 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT: 'LEDE_x86_64'
+  PROJECT: 'lede'
+  TARGET: 'x86_64'
   SSH_DEBUG: 'flase'
   SSH_TIME: '30m'
+  REPO_URL: 'https://github.com/coolsnowwolf/lede'
+  REPO_BRANCH: 'master'
 
 jobs:
   build:
@@ -39,13 +42,13 @@ jobs:
         REPO_URL: https://github.com/coolsnowwolf/lede
         REPO_BRANCH: master
       run: |
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH lede
-        mv ./feeds/lede_feeds.conf.default ./lede/feeds.conf.default
-        mv ./customize/lede_customize.sh ./lede/customize.sh
-        chmod +x ./lede/customize.sh
+        git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.PROJECT }}
+        mv ./feeds/${{ env.PROJECT }}_feeds.conf.default ./${{ env.PROJECT }}/feeds.conf.default
+        mv ./customize/${{ env.PROJECT }}_customize.sh ./${{ env.PROJECT }}/customize.sh
+        chmod +x ./${{ env.PROJECT }}/customize.sh
         
     - name: Update & Install feeds
-      working-directory: ./lede
+      working-directory: ./${{ env.PROJECT }}
       run: |
         ./scripts/feeds update -a
         ./scripts/feeds install -a
@@ -54,10 +57,10 @@ jobs:
 
     - name: Configuration Customization - Build_x86_64
       env:
-        CONFIG_FILE: './config/lede_x86_64.config'
+        CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
       run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE lede/.config
-        cd lede && make defconfig
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
+        cd ${{ env.PROJECT }} && make defconfig
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
@@ -112,7 +115,7 @@ jobs:
 
           if [ $attempts -eq $max_attempts ]; then
               echo "警告：尝试启动frpc $max_attempts 次仍然失败。请自行配置FRPC_CONFIG字段"
-              echo "flase" > SSH_SETUP_SUCCESS.txt
+              echo "false" > SSH_SETUP_SUCCESS.txt
           fi
         fi
         
@@ -133,12 +136,12 @@ jobs:
       uses: stupidloud/cachewrtbuild@main
       with:
         ccache: 'true'
-        mixkey: ${{ env.PROJECT }}
+        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
         #clean: ${{ contains(github.event.action, 'nocache') }}
-        prefix: ${{ github.workspace }}/lede
+        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
     - name: Download package
-      working-directory: ./lede
+      working-directory: ./${{ env.PROJECT }}
       run: |
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
@@ -146,7 +149,7 @@ jobs:
         df -h
 
     - name: Build firmware
-      working-directory: ./lede
+      working-directory: ./${{ env.PROJECT }}
       run: |
         echo -e "$(nproc) thread build."
         make -j$(nproc) V=s || make -j1 V=s
@@ -156,8 +159,8 @@ jobs:
       uses: actions/upload-artifact@master
       continue-on-error: true
       with:
-        name: lede
-        path: lede/bin/targets/
+        name: ${{ env.PROJECT }}
+        path: ${{ env.PROJECT }}/bin/targets/
      
     - name : disk space check
       run: df -h
