@@ -16,5 +16,5 @@ sed -i 's/("iStore"),/("应用中心"),/g' ./package/feeds/small8/luci-app-store
 #sed -i 's/KERNEL_PATCHVER:=6.1/KERNEL_PATCHVER:=5.15/g' ./target/linux/x86/Makefile
 #sed -i 's/KERNEL_TESTING_PATCHVER:=5.15/KERNEL_TESTING_PATCHVER:=5.10/g' ./target/linux/x86/Makefile
 
-#3. Replace with JerryKuKu’s Argon
-#rm openwrt/package/lean/luci-theme-argon -rf
+#添加项目地址
+sed -i '/<tr><td width="33%"><%:CPU usage (%)%><\/td><td id="cpuusage">-<\/td><\/tr>/a <tr><td width="33%"><%:云编译系统%><\/td><td><a href="https:\/\/github.com\/lmxslpc\/openwrt-build" target="_blank">GITHUB<\/a><\/td><\/tr>' ./package/lean/autocore/files/x86/index.htm
