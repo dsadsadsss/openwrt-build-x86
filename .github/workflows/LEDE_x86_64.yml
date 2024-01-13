@@ -10,7 +10,7 @@ env:
   TARGET: 'x86_64'
   REPO_URL: 'https://github.com/coolsnowwolf/lede'
   REPO_BRANCH: 'master'
-  SSH_DEBUG: 'ture'
+  SSH_DEBUG: 'true'
   SSH_TIME: '30m'
   SSH_TIME2: '2h'
 
