@@ -10,8 +10,9 @@ env:
   TARGET: 'x86_64'
   REPO_URL: 'https://github.com/coolsnowwolf/lede'
   REPO_BRANCH: 'master'
-  SSH_DEBUG: 'flase'
+  SSH_DEBUG: 'ture'
   SSH_TIME: '30m'
+  SSH_TIME2: '2h'
 
 jobs:
   build:
@@ -126,7 +127,7 @@ jobs:
         if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
           echo "${{ env.SSH_TIME }}后,将继续进行工作流"
           sleep ${{ env.SSH_TIME }}
-          echo "${{ env.SSH_TIME }}时间结束,继续进行工作流"
+          echo "时间结束,继续进行工作流"
         else
           echo "frpc启动失败，跳过 suspend 步骤"
         fi
@@ -154,6 +155,14 @@ jobs:
         echo -e "$(nproc) thread build."
         make -j$(nproc) V=s || make -j1 V=s
         df -h
+
+    - name: stop for debug
+      if: failure()
+      run: |
+          echo "检测到编译失败,将暂停工作流${{ env.SSH_TIME2 }}"
+          echo "${{ env.SSH_TIME2 }}后,将继续进行工作流"
+          sleep ${{ env.SSH_TIME2 }}
+          echo "时间结束,继续进行工作流"
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
