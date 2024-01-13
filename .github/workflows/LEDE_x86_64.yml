@@ -56,7 +56,7 @@ jobs:
         ./scripts/feeds install -a
         ./customize.sh
 
-    - name: Configuration Customization - Build_${{ env.PROJECT }}_${{ env.TARGET }}
+    - name: Configuration Customization - Build_'${{ env.PROJECT }}_${{ env.TARGET }}'
       env:
         CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
       run: |
