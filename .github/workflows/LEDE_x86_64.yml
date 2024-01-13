@@ -133,13 +133,13 @@ jobs:
         fi
 
 
-    - name: Cache
-      uses: stupidloud/cachewrtbuild@main
-      with:
-        ccache: 'true'
-        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
-        #clean: ${{ contains(github.event.action, 'nocache') }}
-        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
+#    - name: Cache
+#      uses: stupidloud/cachewrtbuild@main
+#      with:
+#        ccache: 'true'
+#        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
+#        clean: ${{ contains(github.event.action, 'nocache') }}
+#        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
     - name: Download package
       working-directory: ./${{ env.PROJECT }}
