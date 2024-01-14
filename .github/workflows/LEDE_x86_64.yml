@@ -153,7 +153,7 @@ jobs:
       working-directory: ./${{ env.PROJECT }}
       run: |
         echo -e "$(nproc) thread build."
-        make -j$(nproc) V=s || make -j1 V=s | tee build_log.txt
+        make -j$(nproc) V=s || make -j1 V=s | tee build.log
         df -h
 
     - name: suspend for debug
