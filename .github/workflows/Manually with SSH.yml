@@ -37,7 +37,6 @@ jobs:
         sudo -E apt -y autoremove --purge
         sudo -E apt clean
         sudo -E timedatectl set-timezone "Asia/Shanghai"
-        echo "cd $GITHUB_WORKSPACE" | sudo tee -a runner/.bashrc
 
     - name: Clone source code
       run: |
@@ -49,6 +48,7 @@ jobs:
     - name: Update & Install feeds
       working-directory: ./${{ env.PROJECT }}
       run: |
+        echo "cd $PWD" | tee -a runner/.bashrc
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
