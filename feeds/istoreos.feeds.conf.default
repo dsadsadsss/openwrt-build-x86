@@ -1,0 +1,12 @@
+src-git-full packages https://github.com/jjm2473/packages.git^16d32d138
+src-git-full luci https://github.com/jjm2473/luci.git^dc7527f83c
+src-git-full routing https://git.openwrt.org/feed/routing.git^777c115
+src-git-full telephony https://git.openwrt.org/feed/telephony.git^54c0d91
+src-git store https://github.com/linkease/istore.git^4c5098f
+src-git third https://github.com/jjm2473/openwrt-third.git^9a9bcec
+src-git third_party https://github.com/linkease/istore-packages.git^3874e89
+src-git diskman https://github.com/jjm2473/luci-app-diskman.git^93f0730
+src-git oaf https://github.com/jjm2473/OpenAppFilter.git^d8663f9
+src-git linkease_nas https://github.com/linkease/nas-packages.git^08c4678
+src-git linkease_nas_luci https://github.com/linkease/nas-packages-luci.git^d8ea502
+src-git jjm2473_apps https://github.com/jjm2473/openwrt-apps.git^242dbad
