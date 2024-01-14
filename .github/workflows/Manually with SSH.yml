@@ -48,6 +48,8 @@ jobs:
     - name: Update & Install feeds
       working-directory: ./${{ env.PROJECT }}
       run: |
+        echo $PWD
+        echo $GITHUB_WORKSPACE
         echo "cd $PWD" | tee -a runner/.bashrc
         ./scripts/feeds update -a
         ./scripts/feeds install -a
