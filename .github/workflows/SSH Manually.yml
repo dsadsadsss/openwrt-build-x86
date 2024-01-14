@@ -7,7 +7,11 @@ on:
   workflow_dispatch:
 
 env:
-  SSH_TIME: '5h'
+  PROJECT: 'istoreos'
+  TARGET: 'x86_64'
+  REPO_URL: 'https://github.com/istoreos/istoreos'    
+  REPO_BRANCH: 'istoreos-22.03'                       
+  SSH_TIME: '5h'                                      
 
 jobs:
   build:
@@ -21,55 +25,39 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        set +e
         docker rmi `docker images -q`
-        echo "Deleting files, please wait ..."
-        sudo rm -rf \
-          /usr/share/dotnet \
-          /etc/mysql \
-          /etc/php
-        sudo -E apt-get -y purge \
-          azure-cli \
-          ghc* \
-          zulu* \
-          hhvm \
-          llvm* \
-          firefox \
-          google* \
-          dotnet* \
-          powershell \
-          openjdk* \
-          mysql* \
-          php*
-        sudo -E apt-get update
-        sudo -E apt-get -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
-        sudo -E apt-get -y autoremove --purge
-        sudo -E apt-get clean
-
+        sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
+        sudo -E apt-mark hold grub-efi-amd64-signed
+        sudo -E apt update
+        sudo -E apt -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
+        sudo -E apt -y full-upgrade
+        sudo -E apt -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libc6-dev libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+        sudo -E systemctl daemon-reload
+        sudo -E apt -y autoremove --purge
+        sudo -E apt clean
+        sudo -E timedatectl set-timezone "Asia/Shanghai"
 
     - name: Clone source code
-      env: 
-        REPO_URL: https://github.com/coolsnowwolf/lede
-        REPO_BRANCH: master
       run: |
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH lede
-        mv ./feeds/lede_feeds.conf.default ./lede/feeds.conf.default
-        mv ./customize/lede_customize.sh ./lede/customize.sh
-        chmod +x ./lede/customize.sh
-       
+        git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.PROJECT }}
+        mv ./feeds/${{ env.PROJECT }}_feeds.conf.default ./${{ env.PROJECT }}/feeds.conf.default
+        mv ./customize/${{ env.PROJECT }}_customize.sh ./${{ env.PROJECT }}/customize.sh
+        chmod +x ./${{ env.PROJECT }}/customize.sh
+        
     - name: Update & Install feeds
-      working-directory: ./lede
+      working-directory: ./${{ env.PROJECT }}
       run: |
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
         ./customize.sh
-    - name: Configuration Customization - Build_x86_64
+
+    - name: "Configuration Customization - Build_${{ env.PROJECT }}_${{ env.TARGET }}"
       env:
-        CONFIG_FILE: './config/lede_x86_64.config'
+        CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
       run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE lede/.config
-        cd lede && make defconfig
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
+        cd ${{ env.PROJECT }} && make defconfig
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
@@ -143,8 +131,8 @@ jobs:
       uses: actions/upload-artifact@master
       continue-on-error: true
       with:
-        name: lede
-        path: lede/bin/targets/
+        name: ${{ env.PROJECT }}
+        path: ${{ env.PROJECT }}/bin/targets/
      
     - name : disk space check
       run: df -h
