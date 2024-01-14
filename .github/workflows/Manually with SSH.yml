@@ -22,46 +22,46 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
 
-    - name: Initialization environment
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        docker rmi `docker images -q`
-        sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
-        sudo -E apt-mark hold grub-efi-amd64-signed
-        sudo -E apt update
-        sudo -E apt -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
-        sudo -E apt -y full-upgrade
-        sudo -E apt -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libc6-dev libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
-        sudo -E systemctl daemon-reload
-        sudo -E apt -y autoremove --purge
-        sudo -E apt clean
-        sudo -E timedatectl set-timezone "Asia/Shanghai"
+#    - name: Initialization environment
+#      env:
+#        DEBIAN_FRONTEND: noninteractive
+#      run: |
+#        docker rmi `docker images -q`
+#        sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
+#        sudo -E apt-mark hold grub-efi-amd64-signed
+#        sudo -E apt update
+#        sudo -E apt -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
+#        sudo -E apt -y full-upgrade
+#        sudo -E apt -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libc6-dev libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+#        sudo -E systemctl daemon-reload
+#        sudo -E apt -y autoremove --purge
+#        sudo -E apt clean
+#        sudo -E timedatectl set-timezone "Asia/Shanghai"
 
-    - name: Clone source code
-      run: |
-        git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.PROJECT }}
-        mv ./feeds/${{ env.PROJECT }}_feeds.conf.default ./${{ env.PROJECT }}/feeds.conf.default
-        mv ./customize/${{ env.PROJECT }}_customize.sh ./${{ env.PROJECT }}/customize.sh
-        chmod +x ./${{ env.PROJECT }}/customize.sh
+#    - name: Clone source code
+#      run: |
+#        git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.PROJECT }}
+#        mv ./feeds/${{ env.PROJECT }}_feeds.conf.default ./${{ env.PROJECT }}/feeds.conf.default
+#        mv ./customize/${{ env.PROJECT }}_customize.sh ./${{ env.PROJECT }}/customize.sh
+#        chmod +x ./${{ env.PROJECT }}/customize.sh
         
-    - name: Update & Install feeds
-      working-directory: ./${{ env.PROJECT }}
-      run: |
-        echo $PWD
-        echo $GITHUB_WORKSPACE
-        echo "cd $PWD" | tee -a runner/.bashrc
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-        ./scripts/feeds install -a
-        ./customize.sh
+#    - name: Update & Install feeds
+#      working-directory: ./${{ env.PROJECT }}
+#      run: |
+#        echo $PWD
+#        echo $GITHUB_WORKSPACE
+#        echo "cd $PWD" | tee -a runner/.bashrc
+#        ./scripts/feeds update -a
+#        ./scripts/feeds install -a
+#        ./scripts/feeds install -a
+#        ./customize.sh
 
-    - name: "Configuration Customization - Build_${{ env.PROJECT }}_${{ env.TARGET }}"
-      env:
-        CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
-      run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
-        cd ${{ env.PROJECT }} && make defconfig
+#    - name: "Configuration Customization - Build_${{ env.PROJECT }}_${{ env.TARGET }}"
+#      env:
+#        CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
+#      run: |
+#        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
+#        cd ${{ env.PROJECT }} && make defconfig
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
