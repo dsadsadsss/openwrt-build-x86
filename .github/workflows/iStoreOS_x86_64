@@ -1,4 +1,4 @@
-name: LEDE_x86_64
+name: iStoreOS_x86_64
 
 # Add a button to trigger the workflow
 on: 
@@ -39,9 +39,6 @@ jobs:
         sudo -E timedatectl set-timezone "Asia/Shanghai"
 
     - name: Clone source code
-      env: 
-        REPO_URL: https://github.com/coolsnowwolf/lede
-        REPO_BRANCH: master
       run: |
         git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.PROJECT }}
         mv ./feeds/${{ env.PROJECT }}_feeds.conf.default ./${{ env.PROJECT }}/feeds.conf.default
