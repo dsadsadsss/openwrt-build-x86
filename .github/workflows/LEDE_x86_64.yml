@@ -120,7 +120,7 @@ jobs:
           fi
         fi
         
-    - name: suspend
+    - name: suspend for custom
       if: env.SSH_DEBUG == 'true'
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
@@ -156,13 +156,19 @@ jobs:
         make -j$(nproc) V=s || make -j1 V=s
         df -h
 
-    - name: stop for debug
+    - name: suspend for debug
       if: failure()
       run: |
+        SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
+        if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
           echo "检测到编译失败,将暂停工作流${{ env.SSH_TIME2 }}"
           echo "${{ env.SSH_TIME2 }}后,将继续进行工作流"
           sleep ${{ env.SSH_TIME2 }}
           echo "时间结束,继续进行工作流"
+        else
+          echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
+        fi
+
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
