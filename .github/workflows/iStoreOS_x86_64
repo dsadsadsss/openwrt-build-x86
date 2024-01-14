@@ -1,0 +1,182 @@
+name: LEDE_x86_64
+
+# Add a button to trigger the workflow
+on: 
+  repository_dispatch:
+  workflow_dispatch:
+
+env:
+  PROJECT: 'istoreos'
+  TARGET: 'x86_64'
+  REPO_URL: 'https://github.com/istoreos/istoreos'
+  REPO_BRANCH: 'istoreos-22.03'
+  SSH_DEBUG: 'false'
+  SSH_TIME: '30m'
+  SSH_TIME2: '2h'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        docker rmi `docker images -q`
+        sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
+        sudo -E apt-mark hold grub-efi-amd64-signed
+        sudo -E apt update
+        sudo -E apt -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
+        sudo -E apt -y full-upgrade
+        sudo -E apt -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libc6-dev libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+        sudo -E systemctl daemon-reload
+        sudo -E apt -y autoremove --purge
+        sudo -E apt clean
+        sudo -E timedatectl set-timezone "Asia/Shanghai"
+
+    - name: Clone source code
+      env: 
+        REPO_URL: https://github.com/coolsnowwolf/lede
+        REPO_BRANCH: master
+      run: |
+        git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.PROJECT }}
+        mv ./feeds/${{ env.PROJECT }}_feeds.conf.default ./${{ env.PROJECT }}/feeds.conf.default
+        mv ./customize/${{ env.PROJECT }}_customize.sh ./${{ env.PROJECT }}/customize.sh
+        chmod +x ./${{ env.PROJECT }}/customize.sh
+        
+    - name: Update & Install feeds
+      working-directory: ./${{ env.PROJECT }}
+      run: |
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        ./scripts/feeds install -a
+        ./customize.sh
+
+    - name: "Configuration Customization - Build_${{ env.PROJECT }}_${{ env.TARGET }}"
+      env:
+        CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
+      run: |
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
+        cd ${{ env.PROJECT }} && make defconfig
+
+    - name: setup ssh for debug 
+      if: env.SSH_DEBUG == 'true'
+      continue-on-error: true  # 允许失败但不终止工作流
+      env:
+        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
+      run: |
+        # 允许root登录并设置root密码
+        echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config 
+        if [ -n "${{ secrets.SSH_PW }}" ]; then
+          echo "root:${{ secrets.SSH_PW }}" | sudo chpasswd
+        else
+          echo "root:123" | sudo chpasswd
+        fi
+    
+        # 重启SSH服务
+        sudo service sshd restart
+    
+        # 配置和启动frpc
+        if [ -n "${{ secrets.FRPC_CONFIG }}" ]; then
+          # 使用提供的frpc配置
+          echo "${{ secrets.FRPC_CONFIG }}" > ./frpc.ini
+          chmod +x ./frpc && ./frpc -c ./frpc.ini &
+          echo "===============frpc启动成功!==============="
+          echo "========检测为自定义配置,请自行连接ssh========"
+          echo "true" > SSH_SETUP_SUCCESS.txt
+        else
+          # 生成随机端口并配置frpc
+          max_attempts=10
+          attempts=0
+
+          while [ $attempts -lt $max_attempts ]; do
+            random_port=$(shuf -i 10000-50000 -n 1)
+            cp frpc.ini.example frpc.ini
+            sed -i "s/\[ssh2action\]/\[ssh2action$random_port\]/g" frpc.ini
+            sed -i "s/remote_port = 22222/remote_port = $random_port/g" frpc.ini
+            chmod +x ./frpc && ./frpc -c ./frpc.ini > ./frpc.log 2>&1 &
+            sleep 5
+            # 检查frpc启动错误
+            if grep -q "start proxy success" ./frpc.log; then
+              echo "===========frpc启动成功!=========="
+              echo "=========以下是SSH连接命令========="
+              echo "ssh root@$(grep -E 'server_addr\s*=' frpc.ini | cut -d'=' -f2 | tr -d '[:space:]') -p $random_port"
+              echo "true" > SSH_SETUP_SUCCESS.txt
+              break
+            else
+              echo "错误：frpc启动失败!重试中..."
+              pkill frpc
+              attempts=$((attempts+1))
+            fi
+          done
+
+          if [ $attempts -eq $max_attempts ]; then
+              echo "警告：尝试启动frpc $max_attempts 次仍然失败。请自行配置FRPC_CONFIG字段"
+              echo "false" > SSH_SETUP_SUCCESS.txt
+          fi
+        fi
+        
+    - name: suspend for custom
+      if: env.SSH_DEBUG == 'true'
+      run: |
+        SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
+        if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
+          echo "${{ env.SSH_TIME }}后,将继续进行工作流"
+          sleep ${{ env.SSH_TIME }}
+          echo "时间结束,继续进行工作流"
+        else
+          echo "frpc启动失败，跳过 suspend 步骤"
+        fi
+
+
+#    - name: Cache
+#      uses: stupidloud/cachewrtbuild@main
+#      with:
+#        ccache: 'true'
+#        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
+#        clean: ${{ contains(github.event.action, 'nocache') }}
+#        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
+        
+    - name: Download package
+      working-directory: ./${{ env.PROJECT }}
+      run: |
+        make download -j$(nproc)
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+        df -h
+
+    - name: Build firmware
+      working-directory: ./${{ env.PROJECT }}
+      run: |
+        echo -e "$(nproc) thread build."
+        make -j$(nproc) V=s || make -j1 V=s | tee build.log
+        df -h
+
+    - name: suspend for debug
+      if: failure()
+      run: |
+        SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
+        if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
+          echo "检测到编译失败,将暂停工作流${{ env.SSH_TIME2 }}"
+          echo "${{ env.SSH_TIME2 }}后,将继续进行工作流"
+          sleep ${{ env.SSH_TIME2 }}
+          echo "时间结束,继续进行工作流"
+        else
+          echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
+        fi
+
+
+    - name : Upload artifact
+      uses: actions/upload-artifact@master
+      continue-on-error: true
+      with:
+        name: ${{ env.PROJECT }}
+        path: ${{ env.PROJECT }}/bin/targets/
+     
+    - name : disk space check
+      run: df -h
+      continue-on-error: true    
