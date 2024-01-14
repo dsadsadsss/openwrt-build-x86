@@ -1,5 +1,5 @@
 ######touch /tmp/keepalive
-name: Build_ssh_debug
+name: Enable SSH Manually
 
 # Add a button to trigger the workflow
 on: 
