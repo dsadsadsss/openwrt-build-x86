@@ -13,6 +13,7 @@ env:
   SSH_DEBUG: 'false'
   SSH_TIME: '30m'
   SSH_TIME2: '2h'
+  CACHE: 'false'
 
 jobs:
   build:
@@ -135,7 +136,7 @@ jobs:
       with:
         ccache: 'true'
         mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
-#        clean: ${{ contains(github.event.action, 'nocache') }}
+        clean: ${{ env.CACHE }}
         prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
     - name: Download package
