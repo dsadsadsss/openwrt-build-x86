@@ -91,7 +91,7 @@ jobs:
           attempts=0
 
           while [ $attempts -lt $max_attempts ]; do
-            random_port=$(shuf -i 10000-50000 -n 1)
+            random_port=$(shuf -i 10001-50000 -n 1)
             cp frpc.ini.example frpc.ini
             sed -i "s/\[ssh2action\]/\[ssh2action$random_port\]/g" frpc.ini
             sed -i "s/remote_port = 22222/remote_port = $random_port/g" frpc.ini
