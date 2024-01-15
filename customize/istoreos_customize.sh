@@ -10,14 +10,17 @@ sed -i 's/192.168.1.1/10.1.1.254/g' package/base-files/files/bin/config_generate
 sed -i 's/disabled=1/disabled=0/g' package/kernel/mac80211/files/lib/wifi/mac80211.sh
 
 # 导入openclash核心
-svn export https://github.com/kenzok8/openwrt-packages/trunk/luci-app-openclash  package/feeds/small8/luci-app-openclash
 mkdir -p package/feeds/small8/luci-app-openclash/root/etc/openclash/core
+git clone https://github.com/kenzok8/small-package.git kenzok8
+cp -rf kenzok8/luci-app-openclash package/feeds/small8/luci-app-openclash
+rm -rf kenzok8
 cp ../customize/clash package/feeds/small8/luci-app-openclash/root/etc/openclash/core
 cp ../customize/clash_meta package/feeds/small8/luci-app-openclash/root/etc/openclash/core
 cp ../customize/clash_tun package/feeds/small8/luci-app-openclash/root/etc/openclash/core
 wget -qO- https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat > package/feeds/small8/luci-app-openclash/root/etc/openclash/GeoIP.dat
 wget -qO- https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat > package/feeds/small8/luci-app-openclash/root/etc/openclash/GeoSite.dat
 chmod +x package/feeds/small8/luci-app-openclash/root/etc/openclash/core/clash*
+
 
 # adguardhome
 svn export https://github.com/kenzok8/openwrt-packages/trunk/luci-app-adguardhome package/luci-app-adguardhome
