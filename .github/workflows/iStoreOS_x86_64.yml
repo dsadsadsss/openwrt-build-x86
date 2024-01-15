@@ -129,15 +129,17 @@ jobs:
         fi
 
 
-#    - name: Cache
-#      uses: stupidloud/cachewrtbuild@main
-#      with:
-#        ccache: 'true'
-#        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
-#        clean: ${{ contains(github.event.action, 'nocache') }}
-#        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
+    - name: Cache
+      if: always()
+      uses: stupidloud/cachewrtbuild@main
+      with:
+        ccache: 'true'
+        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
+        clean: ${{ contains(github.event.action, 'nocache') }}
+        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
     - name: Download package
+      if: always()
       working-directory: ./${{ env.PROJECT }}
       run: |
         make download -j$(nproc)
