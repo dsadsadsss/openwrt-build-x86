@@ -25,7 +25,7 @@
 ```
 env:
   SSH_DEBUG: 'false'  #false修改为true
-  SSH_TIME: '30m'     #定义开启ssh后多久时间后继续进行工作流
+  SSH_TIME: '30m'     #定义开启ssh后多久时间后继续进行工作流,可使用pkill sleep命令提前继续工作流
 ```
 
 #### 自定义选项
