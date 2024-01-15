@@ -135,7 +135,7 @@ jobs:
       with:
         ccache: 'true'
         mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
-        clean: ${{ contains(github.event.action, 'nocache') }}
+        clean: ${{ env.CLEAN }}
         prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
     - name: Download package
