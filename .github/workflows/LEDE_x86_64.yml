@@ -122,13 +122,12 @@ jobs:
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
         if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
-          echo "${{ env.SSH_TIME }}后,将继续进行工作流"
+          echo "暂停工作流${{ env.SSH_TIME }}后将继续进行工作流.可使用pkill sleep命令提前继续工作流"
           sleep ${{ env.SSH_TIME }}
           echo "时间结束,继续进行工作流"
         else
           echo "frpc启动失败，跳过 suspend 步骤"
         fi
-
 
     - name: Cache
       if: always()
@@ -136,10 +135,11 @@ jobs:
       with:
         ccache: 'true'
         mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
-        clean: ${{ env.CACHE }}
+        clean: ${{ contains(github.event.action, 'nocache') }}
         prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
     - name: Download package
+      if: always()
       working-directory: ./${{ env.PROJECT }}
       run: |
         make download -j$(nproc)
@@ -159,14 +159,12 @@ jobs:
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
         if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
-          echo "检测到编译失败,将暂停工作流${{ env.SSH_TIME2 }}"
-          echo "${{ env.SSH_TIME2 }}后,将继续进行工作流"
+          echo "检测到编译失败,将暂停工作流${{ env.SSH_TIME2 }}以进行debug调试.调试完成后可使用pkill sleep命令提前继续工作流"
           sleep ${{ env.SSH_TIME2 }}
           echo "时间结束,继续进行工作流"
         else
           echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
         fi
-
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
