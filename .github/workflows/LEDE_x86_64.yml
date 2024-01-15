@@ -83,7 +83,7 @@ jobs:
           echo "${{ secrets.FRPC_CONFIG }}" > ./frpc.ini
           chmod +x ./frpc && ./frpc -c ./frpc.ini &
           echo "===============frpc启动成功!==============="
-          echo "========检测为自定义配置,请自行连接ssh========"
+          echo "========检测为自定义配置,请自行连接SSH========"
           echo "true" > SSH_SETUP_SUCCESS.txt
         else
           # 生成随机端口并配置frpc
@@ -122,7 +122,7 @@ jobs:
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
         if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
-          echo "暂停工作流${{ env.SSH_TIME }}后将继续进行工作流.可使用pkill sleep命令提前继续工作流"
+          echo "暂停工作流,${{ env.SSH_TIME }}后将继续进行工作流.可使用pkill sleep命令提前继续工作流"
           sleep ${{ env.SSH_TIME }}
           echo "时间结束,继续进行工作流"
         else
