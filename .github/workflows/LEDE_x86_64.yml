@@ -52,14 +52,13 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
-        ./customize.sh
 
     - name: "Configuration Customization - Build_${{ env.PROJECT }}_${{ env.TARGET }}"
       env:
         CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
-        cd ${{ env.PROJECT }} && make defconfig
+        cd ${{ env.PROJECT }} && make defconfig && ./customize.sh
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
