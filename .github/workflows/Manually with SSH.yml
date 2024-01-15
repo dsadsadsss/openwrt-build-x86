@@ -13,7 +13,7 @@ env:
   REPO_BRANCH: 'master'                 
   SSH_DEBUG: 'true'
   SSH_TIME: '5h'
-  CACHE: 'false'
+  CLEAN: 'false'
 
 jobs:
   build:
@@ -68,12 +68,12 @@ jobs:
       with:
         ccache: 'true'
         mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
-        clean: ${{ env.CACHE }}
+        clean: ${{ env.CLEAN }}
         prefix: ${{ github.workspace }}/${{ env.PROJECT }}
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
-      continue-on-error: true  # 允许失败但不终止工作流
+      continue-on-error: true  
       env:
         SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
       run: |
@@ -132,7 +132,7 @@ jobs:
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
         if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
-          echo "${{ env.SSH_TIME }}后,将继续进行工作流"
+          echo "暂停工作流,${{ env.SSH_TIME }}后将继续进行工作流.可使用pkill sleep命令提前继续工作流"
           sleep ${{ env.SSH_TIME }}
           echo "${{ env.SSH_TIME }}时间结束,继续进行工作流"
         else
