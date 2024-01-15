@@ -168,7 +168,7 @@ jobs:
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
-      continue-on-error: true
+      if: always()
       with:
         name: ${{ env.PROJECT }}
         path: ${{ env.PROJECT }}/bin/targets/
