@@ -3,6 +3,13 @@
 - IP: `10.1.1.254`
 - 用户名: `root`
 - 密码: `无`
+- 插件:
+- ```
+  openclash
+  adguardhome
+  mosdns
+  ddns-go
+  ```
 
 ## 使用说明
 
