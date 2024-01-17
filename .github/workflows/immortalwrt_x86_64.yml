@@ -50,8 +50,7 @@ jobs:
       working-directory: ./${{ env.PROJECT }}
       run: |
         ./scripts/feeds update -a
-        rm -rf feeds/packages/net/{alist,adguardhome,brook,gost,mosdns,redsocks*,smartdns,trojan*,v2ray*,xray*}
-        rm -rf feeds/smpackage/luci-theme-design && git clone -b js --single-branch https://github.com/gngpp/luci-theme-design feeds/smpackage/luci-theme-design
+        rm -rf package/feeds/small8/luci-theme-design && git clone -b js --single-branch https://github.com/gngpp/luci-theme-design package/feeds/small8/luci-theme-design
         ./scripts/feeds install -a
         ./scripts/feeds install -a
 
@@ -177,4 +176,4 @@ jobs:
      
     - name : disk space check
       run: df -h
-      continue-on-error: true    
+      continue-on-error: true
