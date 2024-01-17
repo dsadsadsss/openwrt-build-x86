@@ -10,4 +10,3 @@ src-git oaf https://github.com/jjm2473/OpenAppFilter.git
 src-git linkease_nas https://github.com/linkease/nas-packages.git
 src-git linkease_nas_luci https://github.com/linkease/nas-packages-luci.git
 src-git jjm2473_apps https://github.com/jjm2473/openwrt-apps.git
-src-git small8 https://github.com/kenzok8/small-package
