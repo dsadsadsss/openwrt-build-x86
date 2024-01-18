@@ -46,22 +46,21 @@ jobs:
         mv ./customize/${{ env.PROJECT }}_${{ env.TARGET }} ./${{ env.PROJECT }}/customize.sh
         chmod +x ./${{ env.PROJECT }}/customize.sh
         
-#    - name: Update & Install feeds
-#      working-directory: ./${{ env.PROJECT }}
-#      run: |
-#        echo $PWD
-#        echo ${{ github.workspace }}
-#        echo "cd $PWD" | tee -a runner/.bashrc
-#        ./scripts/feeds update -a
-#        ./scripts/feeds install -a
-#        ./scripts/feeds install -a
+    - name: Update & Install feeds
+      working-directory: ./${{ env.PROJECT }}
+      run: |
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        ./scripts/feeds install -a
 
-#    - name: "Configuration Customization - Build_${{ env.PROJECT }}_${{ env.TARGET }}"
-#      env:
-#        CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
-#      run: |
-#        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
-#        cd ${{ env.PROJECT }} && make defconfig && ./customize.sh
+    - name: "Configuration Customization - Build_${{ env.PROJECT }}_${{ env.TARGET }}"
+      env:
+        CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
+      run: |
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
+        cd ${{ env.PROJECT }}
+        ./customize.sh
+        make defconfig
 
     - name: Cache
       uses: stupidloud/cachewrtbuild@main
