@@ -59,6 +59,7 @@ jobs:
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
         cd ${{ env.PROJECT }}
+        sudo echo "cd $PWD" >> /home/runner/.bashrc
         ./customize.sh
         make defconfig
 
