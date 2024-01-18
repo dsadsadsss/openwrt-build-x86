@@ -58,7 +58,10 @@ jobs:
         CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
-        cd ${{ env.PROJECT }} && ./customize.sh && make defconfig
+        cd ${{ env.PROJECT }}
+        sudo echo "cd $PWD" >> /home/runner/.bashrc
+        ./customize.sh
+        make defconfig
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
