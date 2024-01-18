@@ -13,7 +13,7 @@ env:
   SSH_DEBUG: 'false'
   SSH_TIME: '30m'
   SSH_TIME2: '2h'
-  #CLEAN: 'true'
+  CLEAN: 'false'
 
 jobs:
   build:
@@ -132,14 +132,14 @@ jobs:
           echo "frpc启动失败，跳过 suspend 步骤"
         fi
 
-#    - name: Cache
-#      if: always()
-#      uses: stupidloud/cachewrtbuild@main
-#      with:
-#        ccache: 'true'
-#        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
-#        clean: ${{ env.CLEAN }}
-#        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
+    - name: Cache
+      if: always()
+      uses: HiGarfield/cachewrtbuild@main
+      with:
+        ccache: 'true'
+        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
+        clean: ${{ env.CLEAN }}
+        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
     - name: Download package
       if: always()
