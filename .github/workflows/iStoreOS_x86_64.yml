@@ -132,12 +132,11 @@ jobs:
           echo "frpc启动失败，跳过 suspend 步骤"
         fi
 
-
     - name: Cache
       if: always()
-      uses: stupidloud/cachewrtbuild@main
+      uses: HiGarfield/cachewrtbuild@main
       with:
-        ccache: 'true'
+        ccache: 'false'
         mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
         clean: ${{ env.CLEAN }}
         prefix: ${{ github.workspace }}/${{ env.PROJECT }}
