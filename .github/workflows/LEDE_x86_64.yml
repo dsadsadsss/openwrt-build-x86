@@ -13,6 +13,7 @@ env:
   SSH_DEBUG: 'false'
   SSH_TIME: '30m'
   SSH_TIME2: '2h'
+  CACHE: 'false'
   CLEAN: 'false'
 
 jobs:
@@ -133,7 +134,7 @@ jobs:
         fi
 
     - name: Cache
-      if: always()
+      if: env.CACHE == 'true'
       uses: stupidloud/cachewrtbuild@main
       with:
         ccache: 'true'
