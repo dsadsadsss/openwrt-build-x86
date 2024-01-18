@@ -63,13 +63,13 @@ jobs:
         ./customize.sh
         make defconfig
 
-    - name: Cache
-      uses: stupidloud/cachewrtbuild@main
-      with:
-        ccache: 'true'
-        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
-        clean: ${{ env.CLEAN }}
-        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
+#    - name: Cache
+#      uses: HiGarfield/cachewrtbuild@main
+#      with:
+#        ccache: 'true'
+#        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
+#        clean: ${{ env.CLEAN }}
+#        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
