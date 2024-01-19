@@ -81,7 +81,7 @@ jobs:
         sudo echo "cd $PWD" >> /home/runner/.bashrc
         make defconfig
 
-    - name: setup ssh for debug 
+    - name: Setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
       continue-on-error: true
 #      env:
@@ -138,7 +138,7 @@ jobs:
           fi
         fi
         
-    - name: suspend for custom
+    - name: Suspend for custom
       if: env.SSH_DEBUG == 'true'
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
@@ -175,7 +175,7 @@ jobs:
         make -j$(nproc) V=s || make -j1 V=s | tee build.log
         df -h
 
-    - name: suspend for debug
+    - name: Suspend for debug
       if: failure()
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
@@ -207,4 +207,4 @@ jobs:
       if: steps.compile.outputs.status == 'success'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-$(date +"%Y.%m.%d")
-        path: ${{ env.FIRMWARE_PATH }}      
+        path: ${{ env.FIRMWARE_PATH }} 
