@@ -18,5 +18,9 @@ sed -i 's/("iStore"),/("应用中心"),/g' ./package/feeds/small8/luci-app-store
 
 # 替换luci-theme-design
 rm -rf package/feeds/small8/luci-theme-design && git clone -b js --single-branch https://github.com/gngpp/luci-theme-design package/feeds/small8/luci-theme-design
+
+#删除冲突插件
+rm -rf feeds/packages/net/{alist,adguardhome,brook,gost,mosdns,redsocks*,smartdns,trojan*,v2ray*,xray*}
+
 ./scripts/feeds update -a
 ./scripts/feeds install -a
