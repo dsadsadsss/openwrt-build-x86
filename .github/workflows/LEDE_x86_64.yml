@@ -10,6 +10,7 @@ env:
   TARGET: 'x86_64'
   REPO_URL: 'https://github.com/coolsnowwolf/lede'
   REPO_BRANCH: 'master'
+  PLATFORM: 'amd64'
   SSH_DEBUG: 'false'
   SSH_TIME: '30m'
   SSH_TIME2: '2h'
@@ -57,13 +58,12 @@ jobs:
     - name: Clone source code
       run: |
         git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.PROJECT }}
-        mv ./feeds/${{ env.PROJECT }}_${{ env.TARGET }} ./${{ env.PROJECT }}/feeds.conf.default
-        mv ./customize/${{ env.PROJECT }}_${{ env.TARGET }} ./${{ env.PROJECT }}/customize.sh
-        chmod +x ./${{ env.PROJECT }}/customize.sh
+
         
     - name: Update & Install feeds
       working-directory: ./${{ env.PROJECT }}
       run: |
+        mv ./feeds/${{ env.PROJECT }}_${{ env.TARGET }} ./${{ env.PROJECT }}/feeds.conf.default
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
@@ -73,16 +73,19 @@ jobs:
         CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
+        chmod +x $GITHUB_WORKSPACE/customize/*.sh
         cd ${{ env.PROJECT }}
+        $GITHUB_WORKSPACE/customize/${{ env.PROJECT }}_${{ env.TARGET }}.sh
+        $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.PLATFORM }}
+        $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.PLATFORM }}
         sudo echo "cd $PWD" >> /home/runner/.bashrc
-        ./customize.sh
         make defconfig
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
       continue-on-error: true
-      env:
-        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
+#      env:
+#        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
       run: |
         # 允许root登录并设置root密码
         echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config 
