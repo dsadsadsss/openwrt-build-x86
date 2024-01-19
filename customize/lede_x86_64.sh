@@ -34,7 +34,7 @@ sed -i "s/${orig_version}/R${date_version} by Haiibo/g" package/lean/default-set
 rm -rf feeds/luci/applications/luci-app-netdata
 git clone --depth=1 https://github.com/Jason6111/luci-app-netdata feeds/luci/applications/luci-app-netdata
 
-mkdir -p files//usr/lib/lua/luci/view/admin_status
+mkdir -p files/usr/lib/lua/luci/view/admin_status
 cp ../customize/diy/index.htm files/usr/lib/lua/luci/view/admin_status/index.htm
 
 
