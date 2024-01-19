@@ -84,8 +84,6 @@ jobs:
     - name: Setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
       continue-on-error: true
-#      env:
-#        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
       run: |
         # 允许root登录并设置root密码
         echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config 
