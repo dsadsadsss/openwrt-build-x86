@@ -10,9 +10,10 @@ env:
   TARGET: 'x86_64'
   REPO_URL: 'https://github.com/immortalwrt/immortalwrt'
   REPO_BRANCH: 'openwrt-23.05'
+  PLATFORM: 'amd64'
   SSH_DEBUG: 'false'
   SSH_TIME: '30m'
-  SSH_TIME2: '2h'
+  SSH_TIME2: '3h'
   CLEAN: 'false'
 
 jobs:
@@ -57,13 +58,12 @@ jobs:
     - name: Clone source code
       run: |
         git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.PROJECT }}
-        mv ./feeds/${{ env.PROJECT }}_${{ env.TARGET }} ./${{ env.PROJECT }}/feeds.conf.default
-        mv ./customize/${{ env.PROJECT }}_${{ env.TARGET }} ./${{ env.PROJECT }}/customize.sh
-        chmod +x ./${{ env.PROJECT }}/customize.sh
+
         
     - name: Update & Install feeds
       working-directory: ./${{ env.PROJECT }}
       run: |
+        mv ./feeds/${{ env.PROJECT }}_${{ env.TARGET }} ./${{ env.PROJECT }}/feeds.conf.default
         ./scripts/feeds update -a
         rm -rf package/feeds/small8/luci-theme-design && git clone -b js --single-branch https://github.com/gngpp/luci-theme-design package/feeds/small8/luci-theme-design
         ./scripts/feeds install -a
@@ -74,16 +74,19 @@ jobs:
         CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
+        chmod +x $GITHUB_WORKSPACE/customize/*.sh
         cd ${{ env.PROJECT }}
+        $GITHUB_WORKSPACE/customize/${{ env.PROJECT }}_${{ env.TARGET }}.sh
+        $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.PLATFORM }}
+        $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.PLATFORM }}
         sudo echo "cd $PWD" >> /home/runner/.bashrc
-        ./customize.sh
         make defconfig
 
-    - name: setup ssh for debug 
+    - name: Setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
       continue-on-error: true
-      env:
-        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
+#      env:
+#        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
       run: |
         # 允许root登录并设置root密码
         echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config 
@@ -136,7 +139,7 @@ jobs:
           fi
         fi
         
-    - name: suspend for custom
+    - name: Suspend for custom
       if: env.SSH_DEBUG == 'true'
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
@@ -153,7 +156,7 @@ jobs:
       uses: HiGarfield/cachewrtbuild@main
       with:
         ccache: 'false'
-        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
+        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.REPO_BRANCH }}
         clean: ${{ env.CLEAN }}
         prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
@@ -173,7 +176,7 @@ jobs:
         make -j$(nproc) V=s || make -j1 V=s | tee build.log
         df -h
 
-    - name: suspend for debug
+    - name: Suspend for debug
       if: failure()
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
@@ -185,13 +188,24 @@ jobs:
           echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
         fi
 
+    - name: Check compile
+      if: always()
+      id: compile
+      run: |
+        cd ${{ env.PROJECT }}/bin/targets/*/*
+        rm -rf packages *.buildinfo *.manifest *kernel.bin *rootfs.img.gz profiles.json sha256sums
+        sleep 5
+        if [ -e *.img.gz ]; then
+           echo "编译成功,准备上传"
+           echo "status=success" >> $GITHUB_OUTPUT
+           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+        else
+          echo "编译失败,结束工作流"
+        fi
+
     - name : Upload artifact
       uses: actions/upload-artifact@master
-      if: always()
+      if: steps.compile.outputs.status == 'success'
       with:
-        name: ${{ env.PROJECT }}
-        path: ${{ env.PROJECT }}/bin/targets/
-     
-    - name : disk space check
-      run: df -h
-      continue-on-error: true
+        name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-$(date +"%Y.%m.%d")
+        path: ${{ env.FIRMWARE_PATH }}
