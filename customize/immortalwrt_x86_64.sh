@@ -16,11 +16,6 @@ sed -i 's/("iStore"),/("应用中心"),/g' ./package/feeds/small8/luci-app-store
 #sed -i 's/KERNEL_PATCHVER:=6.1/KERNEL_PATCHVER:=5.15/g' ./target/linux/x86/Makefile
 #sed -i 's/KERNEL_TESTING_PATCHVER:=5.15/KERNEL_TESTING_PATCHVER:=5.10/g' ./target/linux/x86/Makefile
 
-# 导入openclash核心
-mkdir -p package/feeds/small8/luci-app-openclash/root/etc/openclash/core
-cp ../customize/clash package/feeds/small8/luci-app-openclash/root/etc/openclash/core
-cp ../customize/clash_meta package/feeds/small8/luci-app-openclash/root/etc/openclash/core
-cp ../customize/clash_tun package/feeds/small8/luci-app-openclash/root/etc/openclash/core
-wget -qO- https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat > package/feeds/small8/luci-app-openclash/root/etc/openclash/GeoIP.dat
-wget -qO- https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat > package/feeds/small8/luci-app-openclash/root/etc/openclash/GeoSite.dat
-chmod +x package/feeds/small8/luci-app-openclash/root/etc/openclash/core/clash*
+# 替换luci-theme-design
+rm -rf package/feeds/small8/luci-theme-design && git clone -b js --single-branch https://github.com/gngpp/luci-theme-design package/feeds/small8/luci-theme-design
+./scripts/feeds install -a
