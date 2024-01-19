@@ -30,15 +30,13 @@ date_version=$(date +"%y.%m.%d")
 orig_version=$(cat "package/lean/default-settings/files/zzz-default-settings" | grep DISTRIB_REVISION= | awk -F "'" '{print $2}')
 sed -i "s/${orig_version}/R${date_version} by Haiibo/g" package/lean/default-settings/files/zzz-default-settings
 
-# 导入openclash核心
-mkdir -p package/feeds/small8/luci-app-openclash/root/etc/openclash/core
-cp ../customize/clash package/feeds/small8/luci-app-openclash/root/etc/openclash/core
-cp ../customize/clash_meta package/feeds/small8/luci-app-openclash/root/etc/openclash/core
-cp ../customize/clash_tun package/feeds/small8/luci-app-openclash/root/etc/openclash/core
-wget -qO- https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat > package/feeds/small8/luci-app-openclash/root/etc/openclash/GeoIP.dat
-wget -qO- https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat > package/feeds/small8/luci-app-openclash/root/etc/openclash/GeoSite.dat
-chmod +x package/feeds/small8/luci-app-openclash/root/etc/openclash/core/clash*
-
 #替换 luci-app-netdata
 rm -rf feeds/luci/applications/luci-app-netdata
 git clone --depth=1 https://github.com/Jason6111/luci-app-netdata feeds/luci/applications/luci-app-netdata
+
+mkdir -p files//usr/lib/lua/luci/view/admin_status
+cp ../customize/diy/index.htm files/usr/lib/lua/luci/view/admin_status/index.htm
+
+
+./scripts/feeds update -a
+./scripts/feeds install -a
