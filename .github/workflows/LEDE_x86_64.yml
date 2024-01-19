@@ -80,7 +80,7 @@ jobs:
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
-      continue-on-error: true  # 允许失败但不终止工作流
+      continue-on-error: true
       env:
         SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
       run: |
@@ -152,7 +152,7 @@ jobs:
       uses: HiGarfield/cachewrtbuild@main
       with:
         ccache: 'false'
-        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
+        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.REPO_BRANCH }}
         clean: ${{ env.CLEAN }}
         prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
@@ -184,13 +184,24 @@ jobs:
           echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
         fi
 
+    - name: Check compile
+      if: always()
+      id: compile
+      run: |
+        cd ${{ env.PROJECT }}/bin/targets/*/*
+        rm -rf packages *.buildinfo *.manifest *kernel.bin *rootfs.img.gz profiles.json sha256sums
+        sleep 5
+        if [ -e *.img.gz ]; then
+           echo "编译成功,准备上传"
+           echo "status=success" >> $GITHUB_OUTPUT
+           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+        else
+          echo "编译失败,结束工作流"
+        fi
+
     - name : Upload artifact
       uses: actions/upload-artifact@master
-      if: always()
+      if: steps.compile.outputs.status == 'success'
       with:
-        name: ${{ env.PROJECT }}
-        path: ${{ env.PROJECT }}/bin/targets/
-     
-    - name : disk space check
-      run: df -h
-      continue-on-error: true    
+        name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-$(date +"%Y.%m.%d")
+        path: ${{ env.FIRMWARE_PATH }}      
