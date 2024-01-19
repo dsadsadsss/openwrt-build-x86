@@ -85,7 +85,7 @@ jobs:
       uses: HiGarfield/cachewrtbuild@main
       with:
         ccache: 'false'
-        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}
+        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.REPO_BRANCH }}
         clean: ${{ env.CLEAN }}
         prefix: ${{ github.workspace }}/${{ env.PROJECT }}
 
