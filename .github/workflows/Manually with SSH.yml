@@ -63,7 +63,7 @@ jobs:
     - name: Update & Install feeds
       working-directory: ./${{ env.PROJECT }}
       run: |
-        mv ./feeds/${{ env.PROJECT }}_${{ env.TARGET }} ./${{ env.PROJECT }}/feeds.conf.default
+        mv $GITHUB_WORKSPACE/feeds/${{ env.PROJECT }}_${{ env.TARGET }} $GITHUB_WORKSPACE/${{ env.PROJECT }}/feeds.conf.default
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
