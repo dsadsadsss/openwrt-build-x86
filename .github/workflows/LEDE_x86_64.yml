@@ -196,6 +196,7 @@ jobs:
            echo "编译成功,准备上传"
            echo "status=success" >> $GITHUB_OUTPUT
            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+           echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
         else
           echo "编译失败,结束工作流"
           exit 1
@@ -205,5 +206,5 @@ jobs:
       uses: actions/upload-artifact@master
       if: steps.compile.outputs.status == 'success'
       with:
-        name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-"$(date +"%Y.%m.%d")"
+        name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
