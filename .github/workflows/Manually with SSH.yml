@@ -13,7 +13,7 @@ env:
   REPO_BRANCH: 'openwrt-23.05'
   PLATFORM: 'amd64'
   SSH_DEBUG: 'true'
-  SSH_TIME: '5h'
+  SSH_TIME: '5.5h'
   CCACHE: 'true'
   CLEAN: 'false'
 
@@ -87,8 +87,8 @@ jobs:
         $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.PLATFORM }}
         $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.PLATFORM }}
         sudo echo "cd $PWD" >> /home/runner/.bashrc
-        make defconfig
         [ "${{ env.CCACHE }}" == 'true' ] && echo -e 'CONFIG_CCACHE=y' >> .config
+        make defconfig
 
     - name: setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
