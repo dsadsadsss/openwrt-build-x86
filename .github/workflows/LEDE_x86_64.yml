@@ -87,8 +87,8 @@ jobs:
         $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.PLATFORM }}
         $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.PLATFORM }}
         sudo echo "cd $PWD" >> /home/runner/.bashrc
-        [ -e ${{ env.CCACHE }} == 'true' ] && echo -e 'CONFIG_CCACHE=y' >> .config
         make defconfig
+        [ -e ${{ env.CCACHE }} == 'true' ] && echo -e 'CONFIG_CCACHE=y' >> .config
 
     - name: Setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
