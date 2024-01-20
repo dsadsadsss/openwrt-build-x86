@@ -200,6 +200,7 @@ jobs:
            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
         else
           echo "编译失败,结束工作流"
+          exit 1
         fi
 
     - name : Upload artifact
