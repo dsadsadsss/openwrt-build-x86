@@ -41,5 +41,5 @@ rm -rf feeds/luci/applications/luci-app-netdata
 git clone --depth=1 https://github.com/Jason6111/luci-app-netdata feeds/luci/applications/luci-app-netdata
 
 
-./scripts/feeds update -a
+
 ./scripts/feeds install -a
