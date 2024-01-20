@@ -14,6 +14,7 @@ env:
   SSH_DEBUG: 'false'
   SSH_TIME: '30m'
   SSH_TIME2: '3h'
+  CCACHE: 'true'
   CLEAN: 'false'
 
 jobs:
@@ -59,6 +60,13 @@ jobs:
       run: |
         git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.PROJECT }}
 
+    - name: Cache
+      uses: HiGarfield/cachewrtbuild@main
+      with:
+        ccache: ${{ env.CCACHE }}
+        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.REPO_BRANCH }}
+        clean: ${{ env.CLEAN }}
+        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
     - name: Update & Install feeds
       working-directory: ./${{ env.PROJECT }}
@@ -79,13 +87,12 @@ jobs:
         $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.PLATFORM }}
         $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.PLATFORM }}
         sudo echo "cd $PWD" >> /home/runner/.bashrc
+        [ -e ${{ env.CCACHE }} == 'true' ] && echo -e 'CONFIG_CCACHE=y' >> .config
         make defconfig
 
     - name: Setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
       continue-on-error: true
-#      env:
-#        SSH_SETUP_SUCCESS: ${{ env.SSH_SETUP_SUCCESS }}
       run: |
         # 允许root登录并设置root密码
         echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config 
@@ -149,15 +156,6 @@ jobs:
         else
           echo "frpc启动失败，跳过 suspend 步骤"
         fi
-
-    - name: Cache
-      if: always()
-      uses: HiGarfield/cachewrtbuild@main
-      with:
-        ccache: 'false'
-        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.REPO_BRANCH }}
-        clean: ${{ env.CLEAN }}
-        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
     - name: Download package
       if: always()
@@ -192,9 +190,9 @@ jobs:
       id: compile
       run: |
         cd ${{ env.PROJECT }}/bin/targets/*/*
-        rm -rf packages *.buildinfo *.manifest *kernel.bin *rootfs.img.gz profiles.json sha256sums
+        rm -rf packages *.manifest *kernel.bin *rootfs.img.gz
         sleep 5
-        if [ -e *.img.gz ]; then
+        if [ -n "$(ls *.img.gz)" ]; then
            echo "编译成功,准备上传"
            echo "status=success" >> $GITHUB_OUTPUT
            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
@@ -208,4 +206,4 @@ jobs:
       if: steps.compile.outputs.status == 'success'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-$(date +"%Y.%m.%d")
-        path: ${{ env.FIRMWARE_PATH }}
+        path: ${{ env.FIRMWARE_PATH }} 
