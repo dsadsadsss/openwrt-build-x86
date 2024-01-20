@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT: 'lede'
+  PROJECT: 'immortalwrt'
   TARGET: 'x86_64'
-  REPO_URL: 'https://github.com/coolsnowwolf/lede'
-  REPO_BRANCH: 'master'
+  REPO_URL: 'https://github.com/immortalwrt/immortalwrt'
+  REPO_BRANCH: 'openwrt-23.05'
   PLATFORM: 'amd64'
   SSH_DEBUG: 'true'
   SSH_TIME: '5h'
