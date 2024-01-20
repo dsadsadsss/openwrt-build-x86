@@ -176,5 +176,5 @@ jobs:
       uses: actions/upload-artifact@master
       if: steps.compile.outputs.status == 'success'
       with:
-        name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-$(date +"%Y.%m.%d")
+        name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-"$(date +"%Y.%m.%d")"
         path: ${{ env.FIRMWARE_PATH }} 
