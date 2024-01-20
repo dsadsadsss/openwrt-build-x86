@@ -161,9 +161,9 @@ jobs:
       id: compile
       run: |
         cd ${{ env.PROJECT }}/bin/targets/*/*
-        rm -rf packages *.buildinfo *.manifest *kernel.bin *rootfs.img.gz profiles.json sha256sums
+        rm -rf packages *.manifest *kernel.bin *rootfs.img.gz
         sleep 5
-        if [ -e *.img.gz ]; then
+        if [ -n "$(ls *.img.gz)" ]; then
            echo "编译成功,准备上传"
            echo "status=success" >> $GITHUB_OUTPUT
            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
@@ -171,10 +171,10 @@ jobs:
           echo "编译失败,结束工作流"
           exit 1
         fi
-        
+
     - name : Upload artifact
       uses: actions/upload-artifact@master
       if: steps.compile.outputs.status == 'success'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-$(date +"%Y.%m.%d")
-        path: ${{ env.FIRMWARE_PATH }}
+        path: ${{ env.FIRMWARE_PATH }} 
