@@ -14,7 +14,7 @@ env:
   SSH_DEBUG: 'false'
   SSH_TIME: '30m'
   SSH_TIME2: '2h'
-  CCACHE: 'true'
+  CCACHE: 'false'
   CLEAN: 'false'
 
 jobs:
