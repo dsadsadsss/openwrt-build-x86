@@ -110,8 +110,8 @@ jobs:
           # 使用提供的frpc配置
           echo "${{ secrets.FRPC_CONFIG }}" > ./frpc.ini
           chmod +x ./frpc && ./frpc -c ./frpc.ini &
-          echo "===============frpc启动成功!==============="
-          echo "========检测为自定义配置,请自行连接ssh========"
+          echo "================frpc启动成功!================"
+          echo "=========检测为自定义配置,请自行连接ssh========="
           echo "true" > SSH_SETUP_SUCCESS.txt
         else
           # 生成随机端口并配置frpc
@@ -127,9 +127,10 @@ jobs:
             sleep 5
             # 检查frpc启动错误
             if grep -q "start proxy success" ./frpc.log; then
-              echo "===========frpc启动成功!=========="
-              echo "=========以下是SSH连接命令========="
+              echo "============frpc启动成功!============"
+              echo "==========以下是SSH连接命令==========="
               echo "ssh root@$(grep -E 'server_addr\s*=' frpc.ini | cut -d'=' -f2 | tr -d '[:space:]') -p $random_port"
+              echo "===================================="
               echo "true" > SSH_SETUP_SUCCESS.txt
               break
             else
@@ -161,15 +162,20 @@ jobs:
       id: compile
       run: |
         cd ${{ env.PROJECT }}/bin/targets/*/*
-        rm -rf packages *.manifest *kernel.bin *rootfs.img.gz
-        sleep 5
         if [ -n "$(ls *.img.gz)" ]; then
-           echo "编译成功,准备上传"
+           echo "===========编译成功,准备上传==========="
+           echo "=============生成文件列表============="
+           echo "$(ls *.img.gz)"
+           echo "===================================="
+           rm -rf packages  *kernel.bin *rootfs* *.json *.tar.zst version.buildinfo
+           echo "=============上传文件列表============="
+           echo "$(ls *.img.gz)"
+           echo "===================================="
            echo "status=success" >> $GITHUB_OUTPUT
            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
            echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
         else
-          echo "编译失败,结束工作流"
+          echo "===========编译失败,结束工作流==========="
           exit 1
         fi
 
