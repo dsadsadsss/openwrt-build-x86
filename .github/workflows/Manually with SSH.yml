@@ -13,7 +13,7 @@ env:
   REPO_BRANCH: 'openwrt-23.05'
   PLATFORM: 'amd64'
   SSH_DEBUG: 'true'
-  SSH_TIME: '5.5h'
+  SSH_TIME: '5.6h'
   CCACHE: 'true'
   CLEAN: 'false'
 
@@ -90,7 +90,7 @@ jobs:
         [ "${{ env.CCACHE }}" == 'true' ] && echo -e 'CONFIG_CCACHE=y' >> .config
         make defconfig
 
-    - name: setup ssh for debug 
+    - name: Setup ssh for debug 
       if: env.SSH_DEBUG == 'true'
       continue-on-error: true  
       run: |
@@ -146,7 +146,7 @@ jobs:
           fi
         fi
         
-    - name: suspend
+    - name: Build firmware Manually
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
         if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
@@ -154,7 +154,10 @@ jobs:
           sleep ${{ env.SSH_TIME }}
           echo "${{ env.SSH_TIME }}时间结束,继续进行工作流"
         else
-          echo "frpc启动失败，跳过 suspend 步骤"
+          echo "frpc启动失败，终止工作流!"
+          echo "frpc启动失败，终止工作流!"
+          echo "frpc启动失败，终止工作流!"
+          exit 1
         fi
 
     - name: Check compile
