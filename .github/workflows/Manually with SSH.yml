@@ -14,7 +14,7 @@ env:
   PLATFORM: 'amd64'
   SSH_DEBUG: 'true'
   SSH_TIME: '5.6h'
-  CCACHE: 'true'
+  CCACHE: 'false'
   CLEAN: 'false'
 
 jobs:
