@@ -168,7 +168,7 @@ jobs:
         if [ -n "$(ls *.img.gz)" ]; then
            echo "===========编译成功,准备上传==========="
            echo "=============生成文件列表============="
-           echo "$(ls *.img.gz)"
+           echo "$(ls)"
            echo "===================================="
            rm -rf packages  *kernel.bin *rootfs* *.json *.tar.zst version.buildinfo
            echo "=============上传文件列表============="
