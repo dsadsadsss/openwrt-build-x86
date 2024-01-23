@@ -131,15 +131,13 @@ jobs:
 
     - name: Check compile
       if: always()
-      id: compile
       run: |
         cd ${{ env.PROJECT }}/bin/targets/*/*
         if [ -n "$(ls *.img.gz)" ]; then
-           echo "status=success" >> $GITHUB_OUTPUT
            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
            echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
+           echo "COMPILE_STATUS=success" >> $GITHUB_ENV
            cat $(echo $GITHUB_ENV)
-           cat $(echo $GITHUB_OUTPUT)
            echo "===========编译成功,准备上传==========="
            echo "=============生成文件列表============="
            echo "$(ls)"
@@ -150,13 +148,14 @@ jobs:
            echo "$(ls *.img.gz)"
            echo "===================================="
         else
+          echo "COMPILE_STATUS=failed" >> $GITHUB_ENV
           echo "===========编译失败,结束工作流==========="
           exit 1
         fi
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
-      if: steps.compile.outputs.status == 'success'
+      if: env.COMPILE_STATUS == 'success'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }}
