@@ -15,7 +15,7 @@ env:
   SSH_DEBUG: 'true'
   SSH_TIME: '5.6h'
   CCACHE: 'false'
-  CLEAN: 'false'
+  CLEAN: 'true'
 
 jobs:
   build:
