@@ -138,8 +138,8 @@ jobs:
            echo "status=success" >> $GITHUB_OUTPUT
            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
            echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
-           echo $GITHUB_ENV
-           echo $GITHUB_OUTPUT
+           cat $(echo $GITHUB_ENV)
+           cat $(echo $GITHUB_OUTPUT)
            echo "===========编译成功,准备上传==========="
            echo "=============生成文件列表============="
            echo "$(ls)"
