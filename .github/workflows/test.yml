@@ -133,15 +133,21 @@ jobs:
       id: compile
       run: |
         cd ${{ env.PROJECT }}/bin/targets/*/*
-        rm -rf packages *.manifest *kernel.bin *rootfs.img.gz
-        sleep 5
         if [ -n "$(ls *.img.gz)" ]; then
-           echo "编译成功,准备上传"
+           echo "===========编译成功,准备上传==========="
+           echo "=============生成文件列表============="
+           echo "$(ls)"
+           echo "=============清理文件中=============="
+           rm -rf packages  *kernel.bin *rootfs* *.json *.tar.zst version.buildinfo
+           sleep 2
+           echo "=============上传文件列表============="
+           echo "$(ls *.img.gz)"
+           echo "===================================="
            echo "status=success" >> $GITHUB_OUTPUT
            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
            echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
         else
-           echo "编译失败,结束工作流"
+          echo "===========编译失败,结束工作流==========="
           exit 1
         fi
 
