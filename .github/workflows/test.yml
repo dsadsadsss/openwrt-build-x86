@@ -144,8 +144,8 @@ jobs:
            echo "$(ls *.img.gz)"
            echo "===================================="
            echo "status=success" >> $GITHUB_OUTPUT
-           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
            echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
+           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
         else
           echo "===========编译失败,结束工作流==========="
           exit 1
