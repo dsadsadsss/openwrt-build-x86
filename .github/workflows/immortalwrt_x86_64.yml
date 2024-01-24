@@ -16,10 +16,12 @@ env:
   SSH_TIME2: '3h'
   CCACHE: 'false'
   CLEAN: 'false'
+  ARTIFACT: 'true'
+  RELEASE: 'true'
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -185,32 +187,53 @@ jobs:
         else
           echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
         fi
-
+      
+    - name: Check compile
       if: always()
       id: compile
       run: |
         cd ${{ env.PROJECT }}/bin/targets/*/*
         if [ -n "$(ls *.img.gz)" ]; then
-           echo "===========编译成功,准备上传==========="
-           echo "=============生成文件列表============="
-           ls -lh bin/targets/x86/64/ | awk '{print $9, $5}'
-           echo "==============清理文件中============="
-           rm -rf packages *kernel.bin *rootfs* *.json *.tar.zst
-           sleep 2
-           echo "=============上传文件列表============="
-           ls -lh bin/targets/x86/64/ | awk '{print $9, $5}'
-           echo "===================================="
-           echo "status=success" >> $GITHUB_OUTPUT
-           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
-           echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
+          echo "===========编译成功,准备上传==========="
+          echo "=============生成文件列表============="
+          ls -lh bin/targets/x86/64/ | awk '{print $9, $5}'
+          echo "==============清理文件中============="
+          rm -rf packages *kernel.bin *rootfs* *.json *.tar.zst
+          sleep 2
+          echo "=============上传文件列表============="
+          ls -lh bin/targets/x86/64/ | awk '{print $9, $5}'
+          echo "===================================="
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+          echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
         else
           echo "===========编译失败,结束工作流==========="
           exit 1
         fi
-
+  
     - name : Upload artifact
       uses: actions/upload-artifact@master
-      if: steps.compile.outputs.status == 'success'
+      if: steps.compile.outputs.status == 'success' && env.ARTIFACT == 'true'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
+        retention-days: 2
+
+    - name: Upload Firmware To Release
+      if: steps.compile.outputs.status == 'success' && env.RELEASE == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
+        allowUpdates: true
+        tag: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.REPO_BRANCH }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: ${{ env.FIRMWARE_PATH }}/*
+        body: |
+          ===Firmware for $(echo "${{ env.PROJECT }}" | tr '[:lower:]' '[:upper:]')===
+          ### 📒 固件信息
+          - 💻 平台架构: ${{ env.TARGET }}
+          - ⚽ 固件源码: ${{ env.REPO_URL }}
+          - 💝 源码分支: ${{ env.REPO_BRANCH }}
+          - 🚀 内核版本: ${{ env.KERNEL }}
+          - 🌐 默认地址: 10.1.1.254
+          - 🔑 默认密码: 空       

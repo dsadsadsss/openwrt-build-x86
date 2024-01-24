@@ -16,6 +16,8 @@ env:
   SSH_TIME2: '2h'
   CCACHE: 'false'
   CLEAN: 'false'
+  ARTIFACT: 'true'
+  RELEASE: 'true'
 
 jobs:
   build:
@@ -211,7 +213,27 @@ jobs:
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
-      if: steps.compile.outputs.status == 'success'
+      if: steps.compile.outputs.status == 'success' && env.ARTIFACT == 'true'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
+        retention-days: 2
+
+    - name: Upload Firmware To Release
+      if: steps.compile.outputs.status == 'success' && env.RELEASE == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
+        allowUpdates: true
+        tag: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.REPO_BRANCH }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: ${{ env.FIRMWARE_PATH }}/*
+        body: |
+          ===Firmware for $(echo "${{ env.PROJECT }}" | tr '[:lower:]' '[:upper:]')===
+          ### 📒 固件信息
+          - 💻 平台架构: ${{ env.TARGET }}
+          - ⚽ 固件源码: ${{ env.REPO_URL }}
+          - 💝 源码分支: ${{ env.REPO_BRANCH }}
+          - 🚀 内核版本: ${{ env.KERNEL }}
+          - 🌐 默认地址: 10.1.1.254
+          - 🔑 默认密码: 空                
