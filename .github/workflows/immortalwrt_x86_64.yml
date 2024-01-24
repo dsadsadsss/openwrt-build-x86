@@ -186,7 +186,6 @@ jobs:
           echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
         fi
 
-    - name: Check compile
       if: always()
       id: compile
       run: |
@@ -194,11 +193,12 @@ jobs:
         if [ -n "$(ls *.img.gz)" ]; then
            echo "===========编译成功,准备上传==========="
            echo "=============生成文件列表============="
-           echo "$(ls *.img.gz)"
-           echo "===================================="
-           rm -rf packages  *kernel.bin *rootfs* *.json *.tar.zst version.buildinfo
+           ls -lh bin/targets/x86/64/ | awk '{print $9, $5}'
+           echo "==============清理文件中============="
+           rm -rf packages *kernel.bin *rootfs* *.json *.tar.zst
+           sleep 2
            echo "=============上传文件列表============="
-           echo "$(ls *.img.gz)"
+           ls -lh bin/targets/x86/64/ | awk '{print $9, $5}'
            echo "===================================="
            echo "status=success" >> $GITHUB_OUTPUT
            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
