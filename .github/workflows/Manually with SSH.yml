@@ -166,18 +166,18 @@ jobs:
       run: |
         cd ${{ env.PROJECT }}/bin/targets/*/*
         if [ -n "$(ls *.img.gz)" ]; then
+           echo "===========编译成功,准备上传==========="
+           echo "=============生成文件列表============="
+           ls -lh bin/targets/x86/64/ | awk '{print $9, $5}'
+           echo "==============清理文件中============="
+           rm -rf packages *kernel.bin *rootfs* *.json *.tar.zst
+           sleep 2
+           echo "=============上传文件列表============="
+           ls -lh bin/targets/x86/64/ | awk '{print $9, $5}'
+           echo "===================================="
            echo "status=success" >> $GITHUB_OUTPUT
            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
            echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
-           echo "===========编译成功,准备上传==========="
-           echo "=============生成文件列表============="
-           echo "$(ls)"
-           echo "=============清理文件中=============="
-           rm -rf packages  *kernel.bin *rootfs* *.json *.tar.zst version.buildinfo
-           sleep 2
-           echo "=============上传文件列表============="
-           echo "$(ls *.img.gz)"
-           echo "===================================="
         else
           echo "===========编译失败,结束工作流==========="
           exit 1
@@ -188,4 +188,4 @@ jobs:
       if: steps.compile.outputs.status == 'success'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
-        path: ${{ env.FIRMWARE_PATH }}
+        path: ${{ env.FIRMWARE_PATH }} 
