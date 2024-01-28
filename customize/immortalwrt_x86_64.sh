@@ -22,13 +22,18 @@ sed -i 's|/bin/login|/bin/login -f root|g' feeds/packages/utils/ttyd/files/ttyd.
 # 替换luci-theme-design
 # rm -rf package/feeds/small8/luci-theme-design && git clone -b js --single-branch https://github.com/gngpp/luci-theme-design package/feeds/small8/luci-theme-design
 
-# 删除冲突插件
-# rm -rf feeds/packages/net/{alist,adguardhome,brook,gost,mosdns,redsocks*,smartdns,trojan*,v2ray*,xray*}
+# 修复插件冲突
+#mosdns
+rm -rf feeds/small8/luci-app-mosdns/root/etc/init.d
 
 #替换 luci-app-netdata
-rm -rf feeds/luci/applications/luci-app-netdata
-git clone --depth=1 https://github.com/Jason6111/luci-app-netdata feeds/luci/applications/luci-app-netdata
+#rm -rf feeds/luci/applications/luci-app-netdata
+#git clone --depth=1 https://github.com/Jason6111/luci-app-netdata feeds/luci/applications/luci-app-netdata
 
+#添加项目地址
+sed -i 's/cpuusage\.cpuusage/cpuusage.cpuusage,/g' feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
+echo "/cpuusage\.cpuusage,/a \_('GitHub \\u9879\\u76EE'),E('a',{'href':'https://github.com/lmxslpc/openwrt-build','target':'_blank'},['\\u4E91\\u7F16\\u8BD1\\u7CFB\\u7EDF'])" > insert.sed
+sed -i -f insert.sed feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
 
 
 
