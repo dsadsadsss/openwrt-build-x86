@@ -166,6 +166,10 @@ jobs:
       run: |
         cd ${{ env.PROJECT }}/bin/targets/*/*
         if [ -n "$(ls *.img.gz)" ]; then
+           echo "status=success" >> $GITHUB_OUTPUT
+           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+           echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
+           echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
            echo "===========编译成功,准备上传==========="
            echo "=============生成文件列表============="
            ls -lh bin/targets/x86/64/ | awk '{print $9, $5}'
@@ -184,8 +188,9 @@ jobs:
         fi
 
     - name : Upload artifact
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@main
       if: steps.compile.outputs.status == 'success'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
+        retention-days: 2
