@@ -35,6 +35,7 @@ sed -i 's/cpuusage\.cpuusage/cpuusage.cpuusage,/g' feeds/luci/modules/luci-mod-s
 echo "/cpuusage\.cpuusage,/a \_('GitHub \\u9879\\u76EE'),E('a',{'href':'https://github.com/lmxslpc/openwrt-build','target':'_blank'},['\\u4E91\\u7F16\\u8BD1\\u7CFB\\u7EDF'])" > insert.sed
 sed -i -f insert.sed feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
 
-
+#修改默认设置
+cp -f ../diy/default-settings package/emortal/default-settings/files/99-default-settings
 
 ./scripts/feeds install -a
