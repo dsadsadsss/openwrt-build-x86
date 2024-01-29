@@ -73,6 +73,8 @@ rm -f "/www/luci-static/resources/view/status/include/29_ethinfo.js"
 rm -f "/tmp/luci-indexcache"
 rm -rf "/tmp/luci-modulecache"
 
+sed -i '/small8/d' /etc/opkg/distfeeds.conf
+
 chmod 0755 /etc/init.d/*
 
 exit 0
