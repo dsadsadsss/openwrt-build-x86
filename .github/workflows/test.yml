@@ -1,5 +1,5 @@
 ######touch /tmp/keepalive
-name: Manually with SSH
+name: test
 
 # Add a button to trigger the workflow
 on: 
