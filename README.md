@@ -24,6 +24,29 @@
 ##### 需要修改编译内容的请直接修改config下对应项目配置文件或者开启ssh调试功能
 ###### 没时间弄目前就写了一个lede_x86_64所以暂时没得选
 
+## SSH调试
+#### 开启ssh调试功能
+修改.github/workflows/xxx.yml
+```
+env:
+  SSH_DEBUG: 'false'  #false修改为true
+```
+#### 环境变量说明
+```
+  PROJECT: 'lede'    #项目名称
+  TARGET: 'x86_64'   #编译目标
+  REPO_URL: 'https://github.com/coolsnowwolf/lede'  #项目地址
+  REPO_BRANCH: 'master'  #项目分支
+  PLATFORM: 'amd64'  #平台架构(amd64/arm)
+  SSH_DEBUG: 'false' #是否开启ssh功能(true/false)
+  SSH_TIME: '30m'    #设置开始编译前暂停时间,可用pkill sleep命令提前继续工作流
+  SSH_TIME2: '3h'    #设置编译报错后暂停时间,可用pkill sleep命令提前继续工作流
+  CCACHE: 'false'    #是否开启ccache功能(true/false)
+  CLEAN: 'false'     #是否清除缓存(true/false)
+  ARTIFACT: 'true'   #是否上传到ARTIFACT(true/false)
+  RELEASE: 'true'    #是否上传到RELEASE(true/false)
+
+```
 ## 文件说明
 | 目录         |         作用        |格式                   |
 | ------------| --------------------| --------------------|
@@ -32,15 +55,6 @@
 | feeds       | 放置feeds源           |    项目名称_编译目标            |
 | patches     | 放置补丁文件           |                |
 
-
-## SSH调试
-#### 开启ssh调试功能
-修改.github/workflows/xxx.yml
-```
-env:
-  SSH_DEBUG: 'false'  #false修改为true
-  SSH_TIME: '30m'     #定义开启ssh后多久时间后继续进行工作流,可使用pkill sleep命令提前继续工作流
-```
 
 #### 自定义选项
 ```
