@@ -20,11 +20,11 @@
 
 ## 使用说明
 
-#### Fork 本项目  ==>  Actions  ==>  选择项目  ==>  Run Workflow
+### Fork 本项目  ==>  Actions  ==>  选择项目  ==>  Run Workflow
 
 ###### 没时间弄目前就写了一个lede_x86_64所以暂时没得选
 
-### Manually with SSH工作流可用于修改编译内容
+#### ====>Manually with SSH<====工作流可用于修改编译内容
 
 ## SSH调试
 #### 开启ssh调试功能
