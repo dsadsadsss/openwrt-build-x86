@@ -6,18 +6,18 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT: 'lede'
-  TARGET: 'x86_64'
-  REPO_URL: 'https://github.com/coolsnowwolf/lede'
-  REPO_BRANCH: 'master'
-  PLATFORM: 'amd64'
-  SSH_DEBUG: 'false'
-  SSH_TIME: '30m'
-  SSH_TIME2: '2h'
-  CCACHE: 'false'
-  CLEAN: 'false'
-  ARTIFACT: 'true'
-  RELEASE: 'true'
+  PROJECT: 'lede'    #项目名称
+  TARGET: 'x86_64'   #编译目标
+  REPO_URL: 'https://github.com/coolsnowwolf/lede'  #项目地址
+  REPO_BRANCH: 'master'  #项目分支
+  PLATFORM: 'amd64'  #平台架构(amd64/arm)
+  SSH_DEBUG: 'false' #是否开启ssh功能(true/false)
+  SSH_TIME: '30m'    #设置开始编译前暂停时间,可用pkill sleep命令提前继续工作流
+  SSH_TIME2: '3h'    #设置编译报错后暂停时间,可用pkill sleep命令提前继续工作流
+  CCACHE: 'false'    #是否开启ccache功能(true/false)
+  CLEAN: 'false'     #是否清除缓存(true/false)
+  ARTIFACT: 'true'   #是否上传到ARTIFACT(true/false)
+  RELEASE: 'true'    #是否上传到RELEASE(true/false)
 
 jobs:
   build:
@@ -170,6 +170,7 @@ jobs:
         df -h
 
     - name: Build firmware
+      if: always()
       working-directory: ./${{ env.PROJECT }}
       run: |
         echo -e "$(nproc) thread build."
@@ -214,14 +215,14 @@ jobs:
 
     - name : Upload artifact
       uses: actions/upload-artifact@main
-      if: steps.compile.outputs.status == 'success' && env.ARTIFACT == 'true'
+      if: always() && steps.compile.outputs.status == 'success' && env.ARTIFACT == 'true'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
         retention-days: 2
 
     - name: Upload Firmware To Release
-      if: steps.compile.outputs.status == 'success' && env.RELEASE == 'true'
+      if: always() && steps.compile.outputs.status == 'success' && env.RELEASE == 'true'
       uses: ncipollo/release-action@v1
       with:
         name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}

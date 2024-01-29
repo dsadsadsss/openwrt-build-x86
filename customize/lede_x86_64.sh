@@ -43,6 +43,8 @@ sed -i 's/"status"/"system"/g' feeds/luci/applications/luci-app-netdata/luasrc/c
 sed -i 's/"status"/"system"/g' feeds/luci/applications/luci-app-netdata/luasrc/model/cgi/*.lua
 sed -i 's/admin\/status/admin\/system/g' feeds/luci/applications/luci-app-netdata/luasrc/view/netdata/*.htm
 
+#删除无效opkg源
+sed -i '/exit 0/i sed -i "/small8/d" /etc/opkg/distfeeds.conf' ./package/lean/default-settings/files/zzz-default-settings
 
 
 ./scripts/feeds install -a

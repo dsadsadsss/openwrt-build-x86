@@ -5,10 +5,17 @@
 - 密码: `无`
 - 插件:
 - ```
-  openclash
-  adguardhome
-  mosdns
-  ddns-go
+  ShadowSocksR Plus+
+  PassWall
+  Openclash
+  Netdata
+  Auto time set
+  AdGuard Home
+  Mosdns
+  DDNS-go
+  ZeroTier
+  Openvpn
+  应用中心(iStore)
   ```
 
 ## 使用说明
@@ -73,8 +80,8 @@ remote_port = 22222   #改成不与他人相同的唯一值,端口范围10001 - 
 
 在工作流的setup ssh for debug步骤中会显示
 ```
-===========frpc启动成功!==========
-=========以下是SSH连接命令=========
+============frpc启动成功!===========
+==========以下是SSH连接命令==========
 ssh root@xxx -p xxxx
 ```
 密码为SSH_PW定义的密码,不设置则为123
