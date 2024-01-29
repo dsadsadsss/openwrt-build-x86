@@ -172,16 +172,13 @@ jobs:
            echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
            echo "===========编译成功,准备上传==========="
            echo "=============生成文件列表============="
-           ls -lh bin/targets/x86/64/ | awk '{print $9, $5}'
+           ls -lh | awk '{print $9, $5}'
            echo "==============清理文件中============="
            rm -rf packages *kernel.bin *rootfs* *.json *.tar.zst
            sleep 2
            echo "=============上传文件列表============="
-           ls -lh bin/targets/x86/64/ | awk '{print $9, $5}'
+           ls -lh | awk '{print $9, $5}'
            echo "===================================="
-           echo "status=success" >> $GITHUB_OUTPUT
-           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
-           echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
         else
           echo "===========编译失败,结束工作流==========="
           exit 1
