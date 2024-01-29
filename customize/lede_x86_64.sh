@@ -39,6 +39,9 @@ sed -i "s/${orig_version}/R${date_version} by Linpc/g" package/lean/default-sett
 #替换 luci-app-netdata
 rm -rf feeds/luci/applications/luci-app-netdata feeds/small8/luci-app-netdata
 git clone --depth=1 https://github.com/Jason6111/luci-app-netdata feeds/luci/applications/luci-app-netdata
+sed -i 's/"status"/"services"/g' feeds/luci/applications/luci-app-netdata/luasrc/controller/*.lua
+sed -i 's/"status"/"services"/g' feeds/luci/applications/luci-app-netdata/luasrc/model/cgi/*.lua
+sed -i 's/admin\/status/admin\/services/g' feeds/luci/applications/luci-app-netdata/luasrc/view/netdata/*.htm
 
 
 
