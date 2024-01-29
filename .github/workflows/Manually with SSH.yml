@@ -186,7 +186,7 @@ jobs:
 
     - name : Upload artifact
       uses: actions/upload-artifact@main
-      if: steps.compile.outputs.status == 'success'
+      if: always() && steps.compile.outputs.status == 'success'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
