@@ -28,8 +28,7 @@ rm -rf feeds/small8/luci-app-mosdns/root/etc/init.d
 
 #添加项目地址
 sed -i 's/cpuusage\.cpuusage/cpuusage.cpuusage,/g' feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
-echo "/cpuusage\.cpuusage,/a \_('GitHub \\u9879\\u76EE'),E('a',{'href':'https://github.com/lmxslpc/openwrt-build','target':'_blank'},['\\u4E91\\u7F16\\u8BD1\\u7CFB\\u7EDF'])" > insert.sed
-sed -i -f insert.sed feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
+sed -i -f ../diy/status.sed feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
 
 #替换 luci-app-netdata
 #rm -rf feeds/luci/applications/luci-app-netdata
