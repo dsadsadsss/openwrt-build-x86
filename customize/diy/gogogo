@@ -1,0 +1,2 @@
+#!/bin/bash
+touch /home/runner/stop_signal
