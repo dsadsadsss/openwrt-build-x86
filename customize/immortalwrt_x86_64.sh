@@ -28,7 +28,7 @@ rm -rf feeds/small8/luci-app-mosdns/root/etc/init.d
 
 #添加项目地址
 sed -i 's/cpuusage\.cpuusage/cpuusage.cpuusage,/g' feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
-sed -i -f ../diy/status.sed feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
+sed -i -f ../customize/diy/status.sed feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
 
 #替换 luci-app-netdata
 #rm -rf feeds/luci/applications/luci-app-netdata
@@ -41,6 +41,6 @@ sed -i 's/admin\/system/admin\/services/g' feeds/luci/applications/luci-app-netd
 
 
 #修改默认设置
-cp -f ../diy/default-settings package/emortal/default-settings/files/99-default-settings
+cp -f ../customize/diy/default-settings package/emortal/default-settings/files/99-default-settings
 
 ./scripts/feeds install -a
