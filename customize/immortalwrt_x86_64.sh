@@ -26,14 +26,20 @@ sed -i 's|/bin/login|/bin/login -f root|g' feeds/packages/utils/ttyd/files/ttyd.
 #mosdns
 rm -rf feeds/small8/luci-app-mosdns/root/etc/init.d
 
-#替换 luci-app-netdata
-#rm -rf feeds/luci/applications/luci-app-netdata
-#git clone --depth=1 https://github.com/Jason6111/luci-app-netdata feeds/luci/applications/luci-app-netdata
-
 #添加项目地址
 sed -i 's/cpuusage\.cpuusage/cpuusage.cpuusage,/g' feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
 echo "/cpuusage\.cpuusage,/a \_('GitHub \\u9879\\u76EE'),E('a',{'href':'https://github.com/lmxslpc/openwrt-build','target':'_blank'},['\\u4E91\\u7F16\\u8BD1\\u7CFB\\u7EDF'])" > insert.sed
 sed -i -f insert.sed feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
+
+#替换 luci-app-netdata
+#rm -rf feeds/luci/applications/luci-app-netdata
+#git clone --depth=1 https://github.com/Jason6111/luci-app-netdata feeds/luci/applications/luci-app-netdata
+
+# 调整 netdata 到 服务 菜单
+sed -i 's/"status"/"services"/g' feeds/luci/applications/luci-app-netdata/luasrc/controller/*.lua
+sed -i 's/"status"/"services"/g' feeds/luci/applications/luci-app-netdata/luasrc/model/cgi/*.lua
+sed -i 's/admin\/status/admin\/services/g' feeds/luci/applications/luci-app-netdata/luasrc/view/netdata/*.htm
+
 
 #修改默认设置
 cp -f ../diy/default-settings package/emortal/default-settings/files/99-default-settings
