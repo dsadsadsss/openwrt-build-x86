@@ -12,8 +12,8 @@ env:
   REPO_BRANCH: 'openwrt-23.05'   #项目分支
   PLATFORM: 'amd64'  #平台架构(amd64/arm)
   SSH_DEBUG: 'true' #是否开启ssh功能(true/false)
-  SSH_TIME: '30m'    #设置开始编译前暂停时间,可用pkill sleep命令提前继续工作流
-  SSH_TIME2: '3h'    #设置编译报错后暂停时间,可用pkill sleep命令提前继续工作流
+  SSH_TIME: '1m'    #设置开始编译前暂停时间,可用pkill sleep命令提前继续工作流
+  SSH_TIME2: '5h'    #设置编译报错后暂停时间,可用pkill sleep命令提前继续工作流
   CCACHE: 'false'    #是否开启ccache功能(true/false)
   CLEAN: 'false'     #是否清除缓存(true/false)
   ARTIFACT: 'true'   #是否上传到ARTIFACT(true/false)
@@ -165,8 +165,8 @@ jobs:
       working-directory: ./${{ env.PROJECT }}
       run: |
         make download -j$(nproc)
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
+        #find dl -size -1024c -exec ls -l {} \;
+        #find dl -size -1024c -exec rm -f {} \;
         df -h
 
     - name: Build firmware
