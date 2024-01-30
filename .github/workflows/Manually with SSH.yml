@@ -193,7 +193,7 @@ jobs:
         retention-days: 2
 
     - name: Upload Firmware To Release
-      if: always() && steps.compile.outputs.status == 'success' && env.RELEASE == 'true'
+      if: always() && steps.compile.outputs.status == 'success'
       uses: ncipollo/release-action@v1.13.0
       with:
         name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
