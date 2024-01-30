@@ -178,7 +178,7 @@ jobs:
         df -h
 
     - name: Suspend for debug
-      if: failure()
+      if: always() && failure()
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
         if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
