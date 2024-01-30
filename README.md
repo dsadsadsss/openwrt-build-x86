@@ -104,7 +104,7 @@ ssh root@xxx -p xxxx
 |  TARGET|  编译目标|
 | REPO_URL| 项目地址|
 | REPO_BRANCH|  项目分支|
-| PLATFORM|  平台架构(amd64/arm)|
+| PLATFORM|  平台架构(amd64/arm64)|
 | SSH_DEBUG| 是否开启ssh功能(true/false)|
 | SSH_TIME|    设置开始编译前暂停时间,可用pkill sleep命令提前继续工作流|
 |SSH_TIME2|   设置编译报错后暂停时间,可用pkill sleep命令提前继续工作流|

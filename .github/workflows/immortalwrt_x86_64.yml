@@ -10,7 +10,7 @@ env:
   TARGET: 'x86_64'        #编译目标
   REPO_URL: 'https://github.com/immortalwrt/immortalwrt'   #项目地址
   REPO_BRANCH: 'openwrt-23.05'   #项目分支
-  PLATFORM: 'amd64'  #平台架构(amd64/arm)
+  PLATFORM: 'amd64'  #平台架构(amd64/arm64)
   SSH_DEBUG: 'true' #是否开启ssh功能(true/false)
   SSH_TIME: '1m'    #设置开始编译前暂停时间,可用pkill sleep命令提前继续工作流
   SSH_TIME2: '5h'    #设置编译报错后暂停时间,可用pkill sleep命令提前继续工作流
@@ -22,6 +22,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout

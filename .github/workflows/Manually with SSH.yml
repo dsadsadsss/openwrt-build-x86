@@ -11,7 +11,7 @@ env:
   TARGET: 'x86_64'        #编译目标
   REPO_URL: 'https://github.com/immortalwrt/immortalwrt'   #项目地址
   REPO_BRANCH: 'openwrt-23.05'   #项目分支
-  PLATFORM: 'amd64'  #平台架构(amd64/arm)
+  PLATFORM: 'amd64'  #平台架构(amd64/arm64)
   SSH_DEBUG: 'true'  #是否开启ssh功能(true/false)
   SSH_TIME: '5.6h'   #设置暂停工作流时间,可用pkill sleep命令提前继续工作流,整个工作流运行时间不能超过6小时
   CCACHE: 'false'    #是否开启ccache功能(true/false)
@@ -20,6 +20,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout
@@ -50,7 +52,7 @@ jobs:
         sudo -E apt update
         sudo -E apt -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
         sudo -E apt -y full-upgrade
-        sudo -E apt-get -qq install btop build-essential clang flex g++ gawk gcc-multilib gettext git libncurses5-dev libssl-dev python3-distutils python3-pyelftools python3-setuptools libpython3-dev rsync unzip zlib1g-dev swig aria2 jq subversion qemu-utils ccache rename libelf-dev device-tree-compiler libgnutls28-dev coccinelle libgmp3-dev libmpc-dev libfuse-dev ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libc6-dev libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5 libncursesw5-dev libreadline-dev libssl-dev libtool lld llvm lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip python3-ply python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+        sudo -E apt -y install btop ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libc6-dev libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
         sudo -E systemctl daemon-reload
         sudo -E apt -y autoremove --purge
         sudo -E apt clean
@@ -194,7 +196,7 @@ jobs:
 
     - name: Upload Firmware To Release
       if: always() && steps.compile.outputs.status == 'success'
-      uses: ncipollo/release-action@v1.13.0
+      uses: ncipollo/release-action@main
       with:
         name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
         allowUpdates: true
