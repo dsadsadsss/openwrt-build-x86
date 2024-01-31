@@ -187,11 +187,10 @@ jobs:
       
     - name: Check compile
       if: always()
-      id: compile
       run: |
         cd ${{ env.PROJECT }}/bin/targets/*/*
         if [ -n "$(ls *.img.gz)" ]; then
-          echo "status=success" >> $GITHUB_OUTPUT
+          echo "COMPILE=success" >> $GITHUB_ENV
           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
           echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
           echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
@@ -205,13 +204,11 @@ jobs:
           ls -lh | awk '{print $9, $5}'
           echo "===================================="
         else
-          echo "status=failure" >> $GITHUB_OUTPUT
-          echo "===========编译失败,结束工作流==========="
-          exit 1
+          echo "COMPILE=failure" >> $GITHUB_ENV
         fi
   
     - name: Suspend for debug
-      if: always() && steps.compile.outputs.status == 'failure'
+      if: always() && env.COMPILE == 'failure'
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
         if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
@@ -220,15 +217,15 @@ jobs:
           echo "时间结束,继续进行工作流"
         else
           echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
+          exit 1
         fi
 
-    - name: Check compile
-      if: always()
-      id: compile
+    - name: Check compile again
+      if: always() && env.COMPILE == 'failure'
       run: |
         cd ${{ env.PROJECT }}/bin/targets/*/*
         if [ -n "$(ls *.img.gz)" ]; then
-          echo "status=success" >> $GITHUB_OUTPUT
+          echo "COMPILE=success" >> $GITHUB_ENV
           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
           echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
           echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
@@ -242,21 +239,21 @@ jobs:
           ls -lh | awk '{print $9, $5}'
           echo "===================================="
         else
-          echo "status=failure" >> $GITHUB_OUTPUT
+          echo "COMPILE=failure" >> $GITHUB_ENV
           echo "===========编译失败,结束工作流==========="
           exit 1
         fi
 
     - name : Upload artifact
       uses: actions/upload-artifact@main
-      if: always() && steps.compile.outputs.status == 'success' && env.ARTIFACT == 'true'
+      if: always() && env.COMPILE == 'success' && env.ARTIFACT == 'true'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
         retention-days: 2
 
     - name: Upload Firmware To Release
-      if: always() && steps.compile.outputs.status == 'success' && env.RELEASE == 'true'
+      if: always() && env.COMPILE == 'success' && env.RELEASE == 'true'
       uses: ncipollo/release-action@main
       with:
         name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
