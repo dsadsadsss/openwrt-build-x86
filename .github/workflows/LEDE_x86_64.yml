@@ -202,7 +202,7 @@ jobs:
         fi
 
     - name: Suspend for debug
-    if: always() && env.COMPILE == 'failure'
+      if: always() && env.COMPILE == 'failure'
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
         if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
