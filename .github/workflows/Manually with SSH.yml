@@ -16,6 +16,8 @@ env:
   SSH_TIME: '5.6h'   #设置暂停工作流时间,可用pkill sleep命令提前继续工作流,整个工作流运行时间不能超过6小时
   CCACHE: 'false'    #是否开启ccache功能(true/false)
   CLEAN: 'false'     #是否清除缓存(true/false)
+  ARTIFACT: 'true'   #是否上传到ARTIFACT(true/false)
+  RELEASE: 'false'    #是否上传到RELEASE(true/false)
 
 jobs:
   build:
@@ -188,14 +190,14 @@ jobs:
 
     - name : Upload artifact
       uses: actions/upload-artifact@main
-      if: always() && steps.compile.outputs.status == 'success'
+      if: always() && steps.compile.outputs.status == 'success' && env.ARTIFACT == 'true'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
         retention-days: 2
 
     - name: Upload Firmware To Release
-      if: always() && steps.compile.outputs.status == 'success'
+      if: always() && steps.compile.outputs.status == 'success' && env.RELEASE == 'true'
       uses: ncipollo/release-action@main
       with:
         name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
