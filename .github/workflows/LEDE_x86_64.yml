@@ -54,7 +54,7 @@ jobs:
         sudo -E apt update
         sudo -E apt -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
         sudo -E apt -y full-upgrade
-        sudo -E apt -y install btop ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libc6-dev libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+        sudo -E apt-get -qq install btop build-essential clang flex g++ gawk gcc-multilib gettext git libncurses5-dev libssl-dev python3-distutils python3-pyelftools python3-setuptools libpython3-dev rsync unzip zlib1g-dev swig aria2 jq subversion qemu-utils ccache rename libelf-dev device-tree-compiler libgnutls28-dev coccinelle libgmp3-dev libmpc-dev libfuse-dev ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libc6-dev libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5 libncursesw5-dev libreadline-dev libssl-dev libtool lld llvm lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip python3-ply python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
         sudo -E systemctl daemon-reload
         sudo -E apt -y autoremove --purge
         sudo -E apt clean
@@ -179,8 +179,30 @@ jobs:
         make -j$(nproc) || make -j1 V=s | tee build.log
         df -h
 
+    - name: Check compile
+      if: always()
+      run: |
+        cd ${{ env.PROJECT }}/bin/targets/*/*
+        if [ -n "$(ls *.img.gz)" ]; then
+          echo "COMPILE=success" >> $GITHUB_ENV
+          echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+          echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
+          echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
+          echo "===========编译成功,准备上传==========="
+          echo "=============生成文件列表============="
+          ls -lh | awk '{print $9, $5}'
+          echo "==============清理文件中============="
+          rm -rf packages *kernel.bin *rootfs* *.json *.tar.zst
+          sleep 2
+          echo "=============上传文件列表============="
+          ls -lh | awk '{print $9, $5}'
+          echo "===================================="
+        else
+          echo "COMPILE=failure" >> $GITHUB_ENV
+        fi
+
     - name: Suspend for debug
-      if: failure()
+    if: always() && env.COMPILE == 'failure'
       run: |
         SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
         if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
@@ -189,15 +211,15 @@ jobs:
           echo "时间结束,继续进行工作流"
         else
           echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
+          exit 1
         fi
 
-    - name: Check compile
-      if: always()
-      id: compile
+    - name: Check compile again 
+      if: always() && env.COMPILE == 'failure'
       run: |
         cd ${{ env.PROJECT }}/bin/targets/*/*
         if [ -n "$(ls *.img.gz)" ]; then
-           echo "status=success" >> $GITHUB_OUTPUT
+          echo "COMPILE=success" >> $GITHUB_ENV
            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
            echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
            echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
@@ -211,21 +233,22 @@ jobs:
            ls -lh | awk '{print $9, $5}'
            echo "===================================="
         else
+          echo "COMPILE=failure" >> $GITHUB_ENV
           echo "===========编译失败,结束工作流==========="
           exit 1
         fi
 
     - name : Upload artifact
       uses: actions/upload-artifact@main
-      if: always() && steps.compile.outputs.status == 'success' && env.ARTIFACT == 'true'
+      if: always() && env.COMPILE == 'success' && env.ARTIFACT == 'true'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
         retention-days: 2
 
     - name: Upload Firmware To Release
-      if: always() && steps.compile.outputs.status == 'success' && env.RELEASE == 'true'
-      uses: ncipollo/release-action@v1.13.0
+      if: always() && env.COMPILE == 'success' && env.RELEASE == 'true'
+      uses: ncipollo/release-action@main
       with:
         name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
         allowUpdates: true
