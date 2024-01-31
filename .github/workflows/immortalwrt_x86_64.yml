@@ -22,7 +22,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
 
@@ -55,7 +55,7 @@ jobs:
         sudo -E apt update
         sudo -E apt -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
         sudo -E apt -y full-upgrade
-        sudo -E apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+        sudo -E apt install -y btop ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
         bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
         g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
         libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5 \
@@ -95,6 +95,7 @@ jobs:
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
         chmod +x $GITHUB_WORKSPACE/customize/*.sh
         cd ${{ env.PROJECT }}
+        whoami
         $GITHUB_WORKSPACE/customize/${{ env.PROJECT }}_${{ env.TARGET }}.sh
         $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.PLATFORM }}
         $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.PLATFORM }}
@@ -174,6 +175,8 @@ jobs:
       if: always()
       working-directory: ./${{ env.PROJECT }}
       run: |
+        whoami
+        sudo su runner
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
@@ -183,6 +186,7 @@ jobs:
       if: always()
       working-directory: ./${{ env.PROJECT }}
       run: |
+        whoami
         echo -e "$(nproc) thread build."
         make -j$(nproc) || make -j1 V=s | tee build.log
         df -h
@@ -233,7 +237,7 @@ jobs:
 
     - name: Upload Firmware To Release
       if: always() && steps.compile.outputs.status == 'success' && env.RELEASE == 'true'
-      uses: ncipollo/release-action@v1.13.0
+      uses: ncipollo/release-action@main
       with:
         name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
         allowUpdates: true
