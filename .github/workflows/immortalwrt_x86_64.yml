@@ -184,17 +184,6 @@ jobs:
         make -j$(nproc) || make -j1 V=s | tee build.log
         df -h
 
-    - name: Suspend for debug
-      if: always()
-      run: |
-        SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
-        if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
-          echo "检测到编译失败,将暂停工作流${{ env.SSH_TIME2 }}以进行debug调试.调试完成后可使用pkill sleep命令提前继续工作流"
-          sleep ${{ env.SSH_TIME2 }}
-          echo "时间结束,继续进行工作流"
-        else
-          echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
-        fi
       
     - name: Check compile
       if: always()
@@ -216,10 +205,48 @@ jobs:
           ls -lh | awk '{print $9, $5}'
           echo "===================================="
         else
+          echo "status=failure" >> $GITHUB_OUTPUT
           echo "===========编译失败,结束工作流==========="
           exit 1
         fi
   
+    - name: Suspend for debug
+      if: always() && steps.compile.outputs.status == 'failure'
+      run: |
+        SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
+        if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
+          echo "检测到编译失败,将暂停工作流${{ env.SSH_TIME2 }}以进行debug调试.调试完成后可使用pkill sleep命令提前继续工作流"
+          sleep ${{ env.SSH_TIME2 }}
+          echo "时间结束,继续进行工作流"
+        else
+          echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
+        fi
+
+        - name: Check compile
+        if: always()
+        id: compile
+        run: |
+          cd ${{ env.PROJECT }}/bin/targets/*/*
+          if [ -n "$(ls *.img.gz)" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+            echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
+            echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
+            echo "===========编译成功,准备上传==========="
+            echo "=============生成文件列表============="
+            ls -lh | awk '{print $9, $5}'
+            echo "==============清理文件中============="
+            rm -rf packages *kernel.bin *rootfs* *.json *.tar.zst
+            sleep 2
+            echo "=============上传文件列表============="
+            ls -lh | awk '{print $9, $5}'
+            echo "===================================="
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "===========编译失败,结束工作流==========="
+            exit 1
+          fi
+
     - name : Upload artifact
       uses: actions/upload-artifact@main
       if: always() && steps.compile.outputs.status == 'success' && env.ARTIFACT == 'true'
