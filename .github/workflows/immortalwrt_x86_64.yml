@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT: 'immortalwrt'        #项目名称
-  TARGET: 'x86_64'        #编译目标
+  BD_PROJECT: 'immortalwrt'        #项目名称
+  BD_TARGET: 'x86_64'        #编译目标
   REPO_URL: 'https://github.com/immortalwrt/immortalwrt'   #项目地址
   REPO_BRANCH: 'openwrt-23.05'   #项目分支
-  PLATFORM: 'amd64'  #平台架构(amd64/arm64)
+  TARGET_PLATFORM: 'amd64'  #平台架构(amd64/arm64)
   SSH_DEBUG: 'false' #是否开启ssh功能(true/false)
   SSH_TIME: '30m'    #设置开始编译前暂停时间,可用pkill sleep命令提前继续工作流
   SSH_TIME2: '2h'    #设置编译报错后暂停时间,可用pkill sleep命令提前继续工作流
@@ -63,34 +63,34 @@ jobs:
 
     - name: Clone source code
       run: |
-        git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.PROJECT }}
+        git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.BD_PROJECT }}
 
     - name: Cache
       uses: HiGarfield/cachewrtbuild@main
       with:
         ccache: ${{ env.CACHE_CCACHE }}
-        mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.REPO_BRANCH }}
+        mixkey: ${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.REPO_BRANCH }}
         clean: ${{ env.CACHE_CLEAN }}
-        prefix: ${{ github.workspace }}/${{ env.PROJECT }}
+        prefix: ${{ github.workspace }}/${{ env.BD_PROJECT }}
         
     - name: Update & Install feeds
-      working-directory: ./${{ env.PROJECT }}
+      working-directory: ./${{ env.BD_PROJECT }}
       run: |
-        mv $GITHUB_WORKSPACE/feeds/${{ env.PROJECT }}_${{ env.TARGET }} $GITHUB_WORKSPACE/${{ env.PROJECT }}/feeds.conf.default
+        mv $GITHUB_WORKSPACE/feeds/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }} $GITHUB_WORKSPACE/${{ env.BD_PROJECT }}/feeds.conf.default
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
 
-    - name: "Configuration Customization - Build_${{ env.PROJECT }}_${{ env.TARGET }}"
+    - name: "Configuration Customization - Build_${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}"
       env:
-        CONFIG_FILE: './config/${{ env.PROJECT }}_${{ env.TARGET }}.config'
+        CONFIG_FILE: './config/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}.config'
       run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.BD_PROJECT }}/.config
         chmod +x $GITHUB_WORKSPACE/customize/*.sh
-        cd ${{ env.PROJECT }}
-        $GITHUB_WORKSPACE/customize/${{ env.PROJECT }}_${{ env.TARGET }}.sh
-        $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.PLATFORM }}
-        $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.PLATFORM }}
+        cd ${{ env.BD_PROJECT }}
+        $GITHUB_WORKSPACE/customize/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}.sh
+        $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.BD_TARGET_PLATFORM }}
+        $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.BD_TARGET_PLATFORM }}
         sudo echo "cd $PWD" >> /home/runner/.bashrc
         [ "${{ env.CACHE_CCACHE }}" == 'true' ] && echo -e 'CONFIG_CCACHE=y' >> .config
         make defconfig
@@ -117,7 +117,7 @@ jobs:
           chmod +x ./frpc && ./frpc -c ./frpc.ini &
           echo "================frpc启动成功!================"
           echo "=========检测为自定义配置,请自行连接ssh========="
-          echo "true" > SSH_SETUP_SUCCESS.txt
+          echo "SSH_SETUP=success" >> $GITHUB_ENV
         else
           # 生成随机端口并配置frpc
           max_attempts=10
@@ -136,7 +136,7 @@ jobs:
               echo "==========以下是SSH连接命令==========="
               echo "ssh root@$(grep -E 'server_addr\s*=' frpc.ini | cut -d'=' -f2 | tr -d '[:space:]') -p $random_port"
               echo "===================================="
-              echo "true" > SSH_SETUP_SUCCESS.txt
+              echo "SSH_SETUP=success" >> $GITHUB_ENV
               break
             else
               echo "错误：frpc启动失败!重试中..."
@@ -147,15 +147,14 @@ jobs:
 
           if [ $attempts -eq $max_attempts ]; then
               echo "警告：尝试启动frpc $max_attempts 次仍然失败。请自行配置FRPC_CONFIG字段"
-              echo "false" > SSH_SETUP_SUCCESS.txt
+              echo "SSH_SETUP=failure" >> $GITHUB_ENV
           fi
         fi
         
     - name: Suspend for custom
       if: env.SSH_DEBUG == 'true'
       run: |
-        SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
-        if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
+        if [ "${{ env.SSH_SETUP }}" == 'success' ]; then
           echo "暂停工作流,${{ env.SSH_TIME }}后将继续进行工作流.可使用pkill sleep命令提前继续工作流"
           sleep ${{ env.SSH_TIME }}
           echo "时间结束,继续进行工作流"
@@ -165,7 +164,7 @@ jobs:
         
     - name: Download package
       if: always()
-      working-directory: ./${{ env.PROJECT }}
+      working-directory: ./${{ env.BD_PROJECT }}
       run: |
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
@@ -174,7 +173,7 @@ jobs:
 
     - name: Build firmware
       if: always()
-      working-directory: ./${{ env.PROJECT }}
+      working-directory: ./${{ env.BD_PROJECT }}
       run: |
         echo -e "$(nproc) thread build."
         make -j$(nproc) || make -j1 V=s | tee build.log
@@ -183,7 +182,7 @@ jobs:
     - name: Check compile
       if: always()
       run: |
-        cd ${{ env.PROJECT }}/bin/targets/*/*
+        cd ${{ env.BD_PROJECT }}/bin/targets/*/*
         if [ -n "$(ls *.img.gz)" ]; then
           echo "COMPILE=success" >> $GITHUB_ENV
           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
@@ -200,25 +199,27 @@ jobs:
           echo "===================================="
         else
           echo "COMPILE=failure" >> $GITHUB_ENV
+          echo "===========编译失败,开启debug调试==========="
         fi
   
     - name: Suspend for debug
       if: always() && env.COMPILE == 'failure'
       run: |
-        SSH_SETUP_SUCCESS=$(<SSH_SETUP_SUCCESS.txt)
-        if [ "$SSH_SETUP_SUCCESS" == 'true' ]; then
+        echo "COMPILE=standby" >> $GITHUB_ENV
+        if [ "${{ env.SSH_SETUP }}" == 'success' ]; then
           echo "检测到编译失败,将暂停工作流${{ env.SSH_TIME2 }}以进行debug调试.调试完成后可使用pkill sleep命令提前继续工作流"
           sleep ${{ env.SSH_TIME2 }}
           echo "时间结束,继续进行工作流"
         else
-          echo "检测到编译失败,但frpc未启动，跳过 debug 步骤"
+          echo "检测到编译失败,但frpc未启动，跳过 debug 步骤,结束工作流"
+          echo "COMPILE=failure" >> $GITHUB_ENV
           exit 1
         fi
 
     - name: Check compile again
-      if: always() && env.COMPILE == 'failure'
+      if: always() && env.COMPILE == 'standby'
       run: |
-        cd ${{ env.PROJECT }}/bin/targets/*/*
+        cd ${{ env.BD_PROJECT }}/bin/targets/*/*
         if [ -n "$(ls *.img.gz)" ]; then
           echo "COMPILE=success" >> $GITHUB_ENV
           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
@@ -243,7 +244,7 @@ jobs:
       uses: actions/upload-artifact@main
       if: always() && env.COMPILE == 'success' && env.UPLOAD_ARTIFACT == 'true'
       with:
-        name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
+        name: ${{ env.BD_PROJECT }}-firmware-${{ env.BD_TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
         retention-days: 2
 
@@ -251,15 +252,15 @@ jobs:
       if: always() && env.COMPILE == 'success' && env.UPLOAD_RELEASE == 'true'
       uses: ncipollo/release-action@main
       with:
-        name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
+        name: ${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
         allowUpdates: true
-        tag: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.REPO_BRANCH }}
+        tag: ${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.REPO_BRANCH }}
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.FIRMWARE_PATH }}/*
         body: |
-          ===Firmware for $(echo "${{ env.PROJECT }}" | tr '[:lower:]' '[:upper:]')===
+          ===Firmware for $(echo "${{ env.BD_PROJECT }}" | tr '[:lower:]' '[:upper:]')===
           ### 📒 固件信息
-          - 💻 平台架构: ${{ env.TARGET }}
+          - 💻 平台架构: ${{ env.BD_TARGET }}
           - ⚽ 固件源码: ${{ env.REPO_URL }}
           - 💝 源码分支: ${{ env.REPO_BRANCH }}
           - 🚀 内核版本: ${{ env.KERNEL }}
