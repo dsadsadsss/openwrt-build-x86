@@ -258,7 +258,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.FIRMWARE_PATH }}/*
         body: |
-          ===Firmware for $(echo "${{ env.BD_PROJECT }}" | tr '[:lower:]' '[:upper:]')===
+          ===Firmware ${{ env.BD_PROJECT }} for ${{ env.BD_TARGET }}===
           ### 📒 固件信息
           - 💻 平台架构: ${{ env.BD_TARGET }}
           - ⚽ 固件源码: ${{ env.REPO_URL }}
@@ -266,3 +266,18 @@ jobs:
           - 🚀 内核版本: ${{ env.KERNEL }}
           - 🌐 默认地址: 10.1.1.254
           - 🔑 默认密码: 空       
+
+          ### 📒 插件列表:
+            ```
+            ShadowSocksR Plus+
+            PassWall
+            Openclash
+            Netdata
+            Autotimeset
+            AdGuard Home
+            Mosdns
+            DDNS-go
+            ZeroTier
+            Openvpn
+            应用中心(iStore)
+            ```

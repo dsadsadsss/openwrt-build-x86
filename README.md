@@ -89,7 +89,7 @@ ssh root@xxx -p xxxx
 
 # 自行添加新项目
 
-#### 文件说明
+#### 配置文件说明
 | 目录         |         作用        |格式                   |
 | ------------| --------------------| --------------------|
 | config      | 放置.config配置文件   |   项目名称_编译目标.config              |
@@ -100,15 +100,15 @@ ssh root@xxx -p xxxx
 #### 环境变量说明
 |变量 |说明|
 |----------|--------------------------------------------------|
-| PROJECT  |   项目名称|
-|  TARGET|  编译目标|
+|BD_PROJECT| PROJECT  |   项目名称|
+|  BD_TARGET|  编译目标|
 | REPO_URL| 项目地址|
 | REPO_BRANCH|  项目分支|
-| PLATFORM|  平台架构(amd64/arm64)|
+| TARGET_PLATFORM|  平台架构(amd64/arm64)|
 | SSH_DEBUG| 是否开启ssh功能(true/false)|
 | SSH_TIME|    设置开始编译前暂停时间,可用pkill sleep命令提前继续工作流|
 |SSH_TIME2|   设置编译报错后暂停时间,可用pkill sleep命令提前继续工作流|
-| CCACHE  |    是否开启ccache功能(true/false)|
-| CLEAN  |    是否清除缓存(true/false)|
-| ARTIFACT|   是否上传到ARTIFACT(true/false)|
-| RELEASE|    是否上传到RELEASE(true/false)|
+| CACHE_CCACHE  |    是否开启ccache缓存功能,不开启则只缓存工具链(true/false)|
+| CACHE_CLEAN  |    是否清除缓存(true/false)|
+| UPLOAD_ARTIFACT|   是否上传到ARTIFACT(true/false)|
+| UPLOAD_RELEASE|    是否上传到RELEASE(true/false)|
