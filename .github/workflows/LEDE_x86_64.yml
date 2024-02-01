@@ -188,6 +188,8 @@ jobs:
           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
           echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
           echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
+          uppercase_string=$(echo "${{ env.BD_PROJECT }}" | tr '[:lower:]' '[:upper:]')
+          echo "Uppercase_String=$uppercase_string" >> $GITHUB_ENV
           echo "===========编译成功,准备上传==========="
           echo "=============生成文件列表============="
           ls -lh | awk '{print $9, $5}'
@@ -252,13 +254,13 @@ jobs:
       if: always() && env.COMPILE == 'success' && env.UPLOAD_RELEASE == 'true'
       uses: ncipollo/release-action@main
       with:
-        name: ${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
+        name: ${{ env.DATE }}_${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.REPO_BRANCH }}
         allowUpdates: true
         tag: ${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.REPO_BRANCH }}
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.FIRMWARE_PATH }}/*
         body: |
-          ===Firmware ${{ env.BD_PROJECT }} for ${{ env.BD_TARGET }}===
+          ===Firmware ${{ env.Uppercase_String }} for ${{ env.BD_TARGET }}===
           ### 📒 固件信息
           - 💻 平台架构: ${{ env.BD_TARGET }}
           - ⚽ 固件源码: ${{ env.REPO_URL }}
