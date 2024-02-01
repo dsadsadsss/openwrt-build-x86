@@ -7,18 +7,18 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT: 'immortalwrt'  #项目名称
+  PROJECT: 'immortalwrt'        #项目名称
   TARGET: 'x86_64'        #编译目标
   REPO_URL: 'https://github.com/immortalwrt/immortalwrt'   #项目地址
   REPO_BRANCH: 'openwrt-23.05'   #项目分支
   PLATFORM: 'amd64'  #平台架构(amd64/arm64)
-  SSH_DEBUG: 'true' #是否开启ssh功能(true/false)
+  SSH_DEBUG: 'false' #是否开启ssh功能(true/false)
   SSH_TIME: '30m'    #设置开始编译前暂停时间,可用pkill sleep命令提前继续工作流
   SSH_TIME2: '2h'    #设置编译报错后暂停时间,可用pkill sleep命令提前继续工作流
-  CCACHE: 'false'    #是否开启ccache功能(true/false)
-  CLEAN: 'false'     #是否清除缓存(true/false)
-  ARTIFACT: 'true'   #是否上传到ARTIFACT(true/false)
-  RELEASE: 'true'    #是否上传到RELEASE(true/false)
+  CACHE_CCACHE: 'false'    #是否开启ccache功能(true/false)
+  CACHE_CLEAN: 'false'     #是否清除缓存(true/false)
+  UPLOAD_ARTIFACT: 'true'   #是否上传到ARTIFACT(true/false)
+  UPLOAD_RELEASE: 'true'    #是否上传到RELEASE(true/false)
 
 jobs:
   build:
@@ -68,9 +68,9 @@ jobs:
     - name: Cache
       uses: HiGarfield/cachewrtbuild@main
       with:
-        ccache: ${{ env.CCACHE }}
+        ccache: ${{ env.CACHE_CCACHE }}
         mixkey: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.REPO_BRANCH }}
-        clean: ${{ env.CLEAN }}
+        clean: ${{ env.CACHE_CLEAN }}
         prefix: ${{ github.workspace }}/${{ env.PROJECT }}
         
     - name: Update & Install feeds
@@ -88,12 +88,11 @@ jobs:
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.PROJECT }}/.config
         chmod +x $GITHUB_WORKSPACE/customize/*.sh
         cd ${{ env.PROJECT }}
-        whoami
         $GITHUB_WORKSPACE/customize/${{ env.PROJECT }}_${{ env.TARGET }}.sh
         $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.PLATFORM }}
         $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.PLATFORM }}
         sudo echo "cd $PWD" >> /home/runner/.bashrc
-        [ "${{ env.CCACHE }}" == 'true' ] && echo -e 'CONFIG_CCACHE=y' >> .config
+        [ "${{ env.CACHE_CCACHE }}" == 'true' ] && echo -e 'CONFIG_CCACHE=y' >> .config
         make defconfig
 
     - name: Setup ssh for debug 
@@ -178,10 +177,8 @@ jobs:
       working-directory: ./${{ env.PROJECT }}
       run: |
         echo -e "$(nproc) thread build."
-        exec make -j$(nproc) | tee -a build.log || make -j1 V=s | tee -a build.log
-        tail -f build.log
-        df -h
-      
+        make -j$(nproc) || make -j1 V=s | tee build.log
+        df -h     
 
     - name: Check compile
       if: always()
@@ -244,14 +241,14 @@ jobs:
 
     - name : Upload artifact
       uses: actions/upload-artifact@main
-      if: always() && env.COMPILE == 'success' && env.ARTIFACT == 'true'
+      if: always() && env.COMPILE == 'success' && env.UPLOAD_ARTIFACT == 'true'
       with:
         name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
         retention-days: 2
 
     - name: Upload Firmware To Release
-      if: always() && env.COMPILE == 'success' && env.RELEASE == 'true'
+      if: always() && env.COMPILE == 'success' && env.UPLOAD_RELEASE == 'true'
       uses: ncipollo/release-action@main
       with:
         name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
