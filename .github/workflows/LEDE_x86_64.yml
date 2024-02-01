@@ -17,7 +17,7 @@ env:
   SSH_TIME2: '2h'    #设置编译报错后暂停时间,可用pkill sleep命令提前继续工作流
   CACHE_CCACHE: 'false'    #是否开启ccache功能(true/false)
   CACHE_CLEAN: 'false'     #是否清除缓存(true/false)
-  UPLOAD_ARTIFACT: 'true'   #是否上传到ARTIFACT(true/false)
+  UPLOAD_ARTIFACT: 'false'   #是否上传到ARTIFACT(true/false)
   UPLOAD_RELEASE: 'true'    #是否上传到RELEASE(true/false)
 
 jobs:
