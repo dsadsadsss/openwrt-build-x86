@@ -100,7 +100,7 @@ ssh root@xxx -p xxxx
 #### 环境变量说明
 |变量 |说明|
 |----------|--------------------------------------------------|
-|BD_PROJECT| PROJECT  |   项目名称|
+|BD_PROJECT|   项目名称|
 |  BD_TARGET|  编译目标|
 | REPO_URL| 项目地址|
 | REPO_BRANCH|  项目分支|
