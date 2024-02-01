@@ -254,13 +254,13 @@ jobs:
       if: always() && env.COMPILE == 'success' && env.UPLOAD_RELEASE == 'true'
       uses: ncipollo/release-action@main
       with:
-        name: ${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
+        name: ${{ env.DATE }}_${{ env.Uppercase_String }}_${{ env.BD_TARGET }}_${{ env.REPO_BRANCH }}
         allowUpdates: true
         tag: ${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.REPO_BRANCH }}
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.FIRMWARE_PATH }}/*
         body: |
-          ===Firmware ${{ env.BD_PROJECT }} for ${{ env.BD_TARGET }}===
+          ===Firmware ${{ env.Uppercase_String }} for ${{ env.BD_TARGET }}===
           ### 📒 固件信息
           - 💻 平台架构: ${{ env.BD_TARGET }}
           - ⚽ 固件源码: ${{ env.REPO_URL }}
