@@ -4,19 +4,19 @@
 - 用户名: `root`
 - 密码: `无`
 - 插件:
-  ```
-  ShadowSocksR Plus+
-  PassWall
-  Openclash
-  Netdata
-  Auto time set
-  AdGuard Home
-  Mosdns
-  DDNS-go
-  ZeroTier
-  Openvpn
-  应用中心(iStore)
-  ```
+```
+ShadowSocksR Plus+
+PassWall
+Openclash
+Netdata
+Auto time set
+AdGuard Home
+Mosdns
+DDNS-go
+ZeroTier
+Openvpn
+应用中心(iStore)
+```
 
 # 使用说明
 
