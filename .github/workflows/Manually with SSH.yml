@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT: 'immortalwrt'  #项目名称
-  TARGET: 'x86_64'        #编译目标
+  BD_PROJECT: 'immortalwrt'        #项目名称
+  BD_TARGET: 'x86_64'        #编译目标
   REPO_URL: 'https://github.com/immortalwrt/immortalwrt'   #项目地址
   REPO_BRANCH: 'openwrt-23.05'   #项目分支
-  PLATFORM: 'amd64'  #平台架构(amd64/arm64)
+  TARGET_PLATFORM: 'amd64'  #平台架构(amd64/arm64)
   SSH_DEBUG: 'true'  #是否开启ssh功能(true/false)
   SSH_TIME: '5.6h'   #设置暂停工作流时间,可用pkill sleep命令提前继续工作流,整个工作流运行时间不能超过6小时
   CACHE_CCACHE: 'false'    #是否开启ccache功能(true/false)
@@ -192,7 +192,7 @@ jobs:
       uses: actions/upload-artifact@main
       if: always() && steps.compile.outputs.status == 'success' && env.UPLOAD_ARTIFACT == 'true'
       with:
-        name: ${{ env.PROJECT }}-firmware-${{ env.TARGET }}-${{ env.DATE }}
+        name: ${{ env.BD_PROJECT }}-firmware-${{ env.BD_TARGET }}-${{ env.DATE }}
         path: ${{ env.FIRMWARE_PATH }} 
         retention-days: 2
 
@@ -200,15 +200,15 @@ jobs:
       if: always() && steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true'
       uses: ncipollo/release-action@main
       with:
-        name: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
+        name: ${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
         allowUpdates: true
-        tag: ${{ env.PROJECT }}_${{ env.TARGET }}_${{ env.REPO_BRANCH }}
+        tag: ${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.REPO_BRANCH }}
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.FIRMWARE_PATH }}/*
         body: |
-          ===Firmware for $(echo "${{ env.PROJECT }}" | tr '[:lower:]' '[:upper:]')===
+          ===Firmware for $(echo "${{ env.BD_PROJECT }}" | tr '[:lower:]' '[:upper:]')===
           ### 📒 固件信息
-          - 💻 平台架构: ${{ env.TARGET }}
+          - 💻 平台架构: ${{ env.BD_TARGET }}
           - ⚽ 固件源码: ${{ env.REPO_URL }}
           - 💝 源码分支: ${{ env.REPO_BRANCH }}
           - 🚀 内核版本: ${{ env.KERNEL }}
