@@ -4,7 +4,7 @@
 - 用户名: `root`
 - 密码: `无`
 - 插件:
-- ```
+  ```
   ShadowSocksR Plus+
   PassWall
   Openclash
