@@ -24,8 +24,10 @@ Openvpn
 
 ###### 没时间弄目前就写了一个lede_x86_64所以暂时没得选
 
-#### ====>Manually with SSH<====
-####   可用于修改编译内容或手动编译
+####   ==>Manually with SSH<==可用于修改编译内容或手动编译
+#####  不同项目请自行修改变量
+#####  [查看环境变量说明](https://github.com/lmxslpc/openwrt-build?tab=readme-ov-file#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AF%B4%E6%98%8E)
+
 
 
 
