@@ -31,7 +31,7 @@ Openvpn
 
 
 
-## SSH连接Action
+## 如何使用SSH连接Action
 #### 开启ssh调试功能
 修改.github/workflows/xxx.yml
 ```
