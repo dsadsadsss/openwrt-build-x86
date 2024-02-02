@@ -46,6 +46,10 @@ sed -i 's/"status"/"system"/g' feeds/luci/applications/luci-app-netdata/luasrc/c
 sed -i 's/"status"/"system"/g' feeds/luci/applications/luci-app-netdata/luasrc/model/cgi/*.lua
 sed -i 's/admin\/status/admin\/system/g' feeds/luci/applications/luci-app-netdata/luasrc/view/netdata/*.htm
 
+#替换 ddns-go
+rm -rf feeds/small8/ddns-go
+git clone --depth=1 https://github.com/sirpdboy/luci-app-ddns-go ddnsgo && mv ddnsgo/ddns-go feeds/small8/ddns-go && rm -rf ddnsgo
+
 #删除无效opkg源
 sed -i '/exit 0/i sed -i "/small8/d" /etc/opkg/distfeeds.conf' ./package/lean/default-settings/files/zzz-default-settings
 
