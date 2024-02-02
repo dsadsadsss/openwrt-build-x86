@@ -88,8 +88,8 @@ jobs:
         chmod +x $GITHUB_WORKSPACE/customize/*.sh
         cd ${{ env.BD_PROJECT }}
         $GITHUB_WORKSPACE/customize/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}.sh
-        $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.BD_TARGET_PLATFORM }}
-        $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.BD_TARGET_PLATFORM }}
+        $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.TARGET_PLATFORM }}
+        $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.TARGET_PLATFORM }}
         sudo echo "cd $PWD" >> /home/runner/.bashrc
         [ "${{ env.CACHE_CCACHE }}" == 'true' ] && echo -e 'CONFIG_CCACHE=y' >> .config
         make defconfig
