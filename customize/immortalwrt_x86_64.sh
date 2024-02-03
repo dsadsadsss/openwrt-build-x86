@@ -28,7 +28,7 @@ rm -rf feeds/small8/luci-app-mosdns/root/etc/init.d
 
 #添加项目地址
 sed -i 's/cpuusage\.cpuusage/cpuusage.cpuusage,/g' feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
-sed -i -f ../customize/diy/status.sed feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
+sed -i -f ../customize/diy/immortalwrt_10_system.sed feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
 
 #修改镜像源
 sed -i 's#mirror.iscas.ac.cn/kernel.org#mirrors.edge.kernel.org/pub#' scripts/download.pl
@@ -49,7 +49,13 @@ find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_U
 #sed -i 's/admin\/system/admin\/services/g' feeds/luci/applications/luci-app-netdata/luasrc/view/netdata/*.htm
 
 
+
 #修改默认设置
 cp -f ../customize/diy/default-settings package/emortal/default-settings/files/99-default-settings
+
+#删除无效opkg源
+sed -i '/exit 0/i sed -i "/small8/d" /etc/opkg/distfeeds.conf' package/emortal/default-settings/files/99-default-settings
+sed -i '/exit 0/i sed -i "/kenzo/d" /etc/opkg/distfeeds.conf' package/emortal/default-settings/files/99-default-settings
+sed -i '/exit 0/i sed -i "/small/d" /etc/opkg/distfeeds.conf' package/emortal/default-settings/files/99-default-settings
 
 ./scripts/feeds install -a

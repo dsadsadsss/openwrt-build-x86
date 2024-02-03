@@ -20,7 +20,7 @@ sed -i 's/("iStore"),/("应用中心"),/g' ./package/feeds/small8/luci-app-store
 sed -i 's|/bin/login|/bin/login -f root|g' feeds/packages/utils/ttyd/files/ttyd.config
 
 #添加项目地址
-sed -i '/<tr><td width="33%"><%:CPU usage (%)%><\/td><td id="cpuusage">-<\/td><\/tr>/a <tr><td width="33%"><%:Github项目%><\/td><td><a href="https:\/\/github.com\/lmxslpc\/openwrt-build" target="_blank">云编译系统<\/a><\/td><\/tr>' ./package/lean/autocore/files/x86/index.htm
+#sed -i '/<tr><td width="33%"><%:CPU usage (%)%><\/td><td id="cpuusage">-<\/td><\/tr>/a <tr><td width="33%"><%:Github项目%><\/td><td><a href="https:\/\/github.com\/lmxslpc\/openwrt-build" target="_blank">云编译系统<\/a><\/td><\/tr>' ./package/lean/autocore/files/x86/index.htm
 
 # 修改本地时间格式
 # sed -i 's/os.date()/os.date("%a %Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/*/index.htm
@@ -40,18 +40,15 @@ sed -i '/<tr><td width="33%"><%:CPU usage (%)%><\/td><td id="cpuusage">-<\/td><\
 #sed -i "s/${orig_version}/R${date_version} by Linpc/g" package/lean/default-settings/files/zzz-default-settings
 
 #增加 luci-app-netdata
-rm -rf feeds/luci/applications/luci-app-netdata feeds/small8/luci-app-netdata
+#rm -rf feeds/luci/applications/luci-app-netdata feeds/small8/luci-app-netdata
 git clone --depth=1 https://github.com/Jason6111/luci-app-netdata feeds/luci/applications/luci-app-netdata
 sed -i 's/"status"/"system"/g' feeds/luci/applications/luci-app-netdata/luasrc/controller/*.lua
 sed -i 's/"status"/"system"/g' feeds/luci/applications/luci-app-netdata/luasrc/model/cgi/*.lua
 sed -i 's/admin\/status/admin\/system/g' feeds/luci/applications/luci-app-netdata/luasrc/view/netdata/*.htm
 
-#修改 ddns-go
-rm -rf feeds/small8/ddns-go
-git clone --depth=1 https://github.com/sirpdboy/luci-app-ddns-go ddnsgo 
-mv ddnsgo/ddns-go package/ddns-go 
-rm -rf ddnsgo
-
+#修增加 ddns-go
+#rm -rf feeds/small8/ddns-go
+git clone --depth=1 https://github.com/sirpdboy/luci-app-ddns-go ./package/ddnsgo
 
 
 #删除无效opkg源
