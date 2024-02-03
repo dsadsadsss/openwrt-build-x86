@@ -75,8 +75,7 @@ jobs:
     - name: Update & Install feeds
       working-directory: ./${{ env.BD_PROJECT }}
       run: |
-#mv $GITHUB_WORKSPACE/feeds/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }} $GITHUB_WORKSPACE/${{ env.BD_PROJECT }}/feeds.conf.default
-        mv $GITHUB_WORKSPACE/feeds/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }} $GITHUB_WORKSPACE/${{ env.BD_PROJECT }}/feeds.conf        
+        mv $GITHUB_WORKSPACE/feeds/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }} $GITHUB_WORKSPACE/${{ env.BD_PROJECT }}/feeds.conf        # feeds.conf.default
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
