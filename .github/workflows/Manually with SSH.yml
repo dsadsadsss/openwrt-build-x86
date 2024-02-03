@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
 
 env:
-  BD_PROJECT: 'lede'       #项目名称
+  BD_PROJECT: 'istoreos'       #项目名称
   BD_TARGET: 'x86_64'        #编译目标
-  REPO_URL: 'https://github.com/coolsnowwolf/lede'  #项目地址
-  REPO_BRANCH: 'master'  #项目分支
+  REPO_URL: 'https://github.com/istoreos/istoreos'  #项目地址
+  REPO_BRANCH: 'istoreos-22.03'  #项目分支
   TARGET_PLATFORM: 'amd64'  #平台架构(amd64/arm64)
   SSH_DEBUG: 'true'  #是否开启ssh功能(true/false)
   SSH_TIME: '5.6h'   #设置暂停工作流时间,可用pkill sleep命令提前继续工作流,整个工作流运行时间不能超过6小时
@@ -75,7 +75,8 @@ jobs:
     - name: Update & Install feeds
       working-directory: ./${{ env.BD_PROJECT }}
       run: |
-        mv $GITHUB_WORKSPACE/feeds/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }} $GITHUB_WORKSPACE/${{ env.BD_PROJECT }}/feeds.conf.default
+#        mv $GITHUB_WORKSPACE/feeds/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }} $GITHUB_WORKSPACE/${{ env.BD_PROJECT }}/feeds.conf.default
+        mv $GITHUB_WORKSPACE/feeds/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }} $GITHUB_WORKSPACE/${{ env.BD_PROJECT }}/feeds.conf        
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
