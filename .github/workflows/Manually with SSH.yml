@@ -82,7 +82,7 @@ jobs:
     - name: Update & Install feeds
       working-directory: ./${{ env.BD_PROJECT }}
       run: |
-        mv $GITHUB_WORKSPACE/feeds/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }} $GITHUB_WORKSPACE/${{ env.BD_PROJECT }}/feeds.conf        # feeds.conf.default
+        mv $GITHUB_WORKSPACE/feeds/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }} $GITHUB_WORKSPACE/${{ env.BD_PROJECT }}/feeds.conf
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
@@ -92,11 +92,7 @@ jobs:
         CONFIG_FILE: './config/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}.config'
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ${{ env.BD_PROJECT }}/.config
-        chmod +x $GITHUB_WORKSPACE/customize/*.sh
         cd ${{ env.BD_PROJECT }}
-        $GITHUB_WORKSPACE/customize/${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}.sh
-        $GITHUB_WORKSPACE/customize/preset-adguard-core.sh ${{ env.TARGET_PLATFORM }}
-        $GITHUB_WORKSPACE/customize/preset-clash-core.sh ${{ env.TARGET_PLATFORM }}
         sudo echo "cd $PWD" >> /home/runner/.bashrc
         [ "${{ env.CACHE_CCACHE }}" == 'true' ] && echo -e 'CONFIG_CCACHE=y' >> .config
         make defconfig
@@ -124,11 +120,13 @@ jobs:
           sleep 5
           if grep -q "start proxy success" ./frpc.log; then
             echo "================frpc启动成功!================"
-            echo "=========检测为自定义配置,请自行连接ssh========="
+            echo "=========检测为自定义配置,请自行连接SSH========="
             echo "SSH_SETUP=success" >> $GITHUB_ENV
           else
-            echo "警告：尝试启动frpc失败。请重新配置FRPC_CONFIG字段"
+            echo "警告:尝试启动frpc失败。请重新配置FRPC_CONFIG字段"
+            echo "==================结束工作流==================="
             echo "SSH_SETUP=failure" >> $GITHUB_ENV
+            exit 1
           fi
         else
           # 生成随机端口并配置frpc
@@ -151,57 +149,51 @@ jobs:
               echo "SSH_SETUP=success" >> $GITHUB_ENV
               break
             else
-              echo "错误：frpc启动失败!重试中..."
+              echo "错误:frpc启动失败!重试中..."
               pkill frpc
               attempts=$((attempts+1))
             fi
           done
 
           if [ $attempts -eq $max_attempts ]; then
-              echo "警告：尝试启动frpc $max_attempts 次仍然失败。请自行配置FRPC_CONFIG字段"
-              echo "SSH_SETUP=failure" >> $GITHUB_ENV
+            echo "警告:尝试启动frpc $max_attempts 次仍然失败。请自行配置FRPC_CONFIG字段"
+            echo "======================结束工作流======================="
+            echo "SSH_SETUP=failure" >> $GITHUB_ENV
+            exit 1
           fi
         fi
 
     - name: Pause workflow
       if: env.SSH_DEBUG == 'true'
       run: |
-        if [ "${{ env.SSH_SETUP }}" == 'success' ]; then
-          if [ ! -f /usr/bin/gogogo ]; then #插入gogogo命令
-            echo '#!/bin/bash' > gogogo
-            echo 'sudo touch /home/runner/stop_signal' >> gogogo
-            sudo chmod a+x gogogo && sudo cp gogogo /usr/bin/
-            echo "================gogogo命令已加载!================"
-            echo "                                                "
-            echo "                                                "
-          else
-            echo "================gogogo命令已存在!================"
-            echo "                                                "
-            echo "                                                "
-          fi
-          #倒计时循环
-          echo -n -e "===================暂停工作流==================="
-          count=0  #分钟循环
-          while [ ! -f /home/runner/stop_signal ] && [ $count -lt ${{ env.SSH_TIME }} ]; do
-            inner_count=0  #秒钟循环
-            while [ $inner_count -lt 60 ]; do
-              echo -n -e "已过时间：$count分钟$inner_count秒,可使用gogogo命令提前继续工作流! \033[0K\r"
-              if [ -f /home/runner/stop_signal ]; then
-                break  # 如果文件存在，立即退出子循环
-              fi
-              sleep 1
-              inner_count=$((inner_count + 1))
-            done
-            count=$((count + 1))
-          done
-          # 循环结束后删除文件
-          sudo rm -f /home/runner/stop_signal
+        if [ ! -f /usr/bin/gogogo ]; then #插入gogogo命令
+          echo '#!/bin/bash' > gogogo
+          echo 'sudo touch /home/runner/stop_signal' >> gogogo
+          sudo chmod a+x gogogo && sudo cp gogogo /usr/bin/
+          echo "================gogogo命令已加载!================"
+          echo "                                                "
+          echo "                                                "
         else
-          echo "==============frpc启动失败,终止工作流!==============="
-          echo "==============frpc启动失败,终止工作流!==============="
-          echo "==============frpc启动失败,终止工作流!==============="
-          exit 1
+          echo "================gogogo命令已存在!================"
+          echo "                                                "
+          echo "                                                "
         fi
+        echo -n -e "===================暂停工作流==================="      # 倒计时循环
+        count=0  #分钟循环
+        while [ ! -f /home/runner/stop_signal ] && [ $count -lt ${{ env.SSH_TIME }} ]; do
+          inner_count=0  #秒钟循环
+          while [ $inner_count -lt 60 ]; do
+            echo -n -e "已过时间：$count分钟$inner_count秒,可使用 gogogo 命令提前继续工作流! \033[0K\r"
+            if [ -f /home/runner/stop_signal ]; then
+              break  # 如果文件存在，立即退出子循环
+            fi
+            sleep 1
+            inner_count=$((inner_count + 1))
+          done
+          count=$((count + 1))
+        done
+        # 循环结束后删除文件
+        sudo rm -f /home/runner/stop_signal
 
     - name: Check compile
       run: |
@@ -219,6 +211,7 @@ jobs:
           echo "===========编译失败,结束工作流==========="
           exit 1
         fi
+
 
     - name: Upload Firmware To Release
       if: env.BD_COMPILE == 'success' && env.UPLOAD_RELEASE == 'true'
