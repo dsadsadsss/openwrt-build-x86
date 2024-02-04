@@ -284,6 +284,7 @@ jobs:
           fi
           count=$((count + 1))
         done
+
         if [ "${{ env.BD_COMPILE }}" == 'failure' ]; then
           exit 1
         fi
