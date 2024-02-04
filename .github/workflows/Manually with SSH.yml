@@ -1,7 +1,5 @@
 name: Manually with SSH
 
-# Add a button to trigger the workflow
-# sudo -E apt-get -qq install btop build-essential clang flex g++ gawk gcc-multilib gettext git libncurses5-dev libssl-dev python3-distutils python3-pyelftools python3-setuptools libpython3-dev rsync unzip zlib1g-dev swig aria2 jq subversion qemu-utils ccache rename libelf-dev device-tree-compiler libgnutls28-dev coccinelle libgmp3-dev libmpc-dev libfuse-dev ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libc6-dev libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5 libncursesw5-dev libreadline-dev libssl-dev libtool lld llvm lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip python3-ply python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
 on: 
   repository_dispatch:
   workflow_dispatch:
@@ -13,7 +11,7 @@ env:
   REPO_BRANCH: 'istoreos-22.03'  #项目分支
   TARGET_PLATFORM: 'amd64'  #平台架构(amd64/arm64)
   SSH_DEBUG: 'true'  #是否开启ssh功能(true/false)
-  SSH_TIME: '5.6h'   #设置暂停工作流时间,可用pkill sleep命令提前继续工作流,整个工作流运行时间不能超过6小时
+  SSH_TIME: '340'   #单位分钟,设置暂停工作流时间,可用pkill sleep命令提前继续工作流,整个工作流运行时间不能超过6小时
   CACHE_CCACHE: 'false'    #是否开启ccache功能(true/false)
   CACHE_CLEAN: 'false'     #是否清除缓存(true/false)
   UPLOAD_ARTIFACT: 'true'   #是否上传到ARTIFACT(true/false)
@@ -64,6 +62,15 @@ jobs:
       run: |
         git clone --depth 1 ${{ env.REPO_URL }} -b ${{ env.REPO_BRANCH }} ${{ env.BD_PROJECT }}
 
+    - name: Free up disk space
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo mkdir -p -m 777 /mnt/openwrt/dl /mnt/openwrt/bin /mnt/openwrt/staging_dir
+        ln -sf /mnt/openwrt/dl openwrt/dl
+        ln -sf /mnt/openwrt/bin openwrt/bin
+        ln -sf /mnt/openwrt/staging_dir openwrt/staging_dir
+
     - name: Cache
       uses: HiGarfield/cachewrtbuild@main
       with:
@@ -113,10 +120,16 @@ jobs:
         if [ -n "${{ secrets.FRPC_CONFIG }}" ]; then
           # 使用提供的frpc配置
           echo "${{ secrets.FRPC_CONFIG }}" > ./frpc.ini
-          chmod +x ./frpc && ./frpc -c ./frpc.ini &
-          echo "================frpc启动成功!================"
-          echo "=========检测为自定义配置,请自行连接ssh========="
-          echo "SSH_SETUP=success" >> $GITHUB_ENV
+          chmod +x ./frpc && ./frpc -c ./frpc.ini > ./frpc.log 2>&1 &
+          sleep 5
+          if grep -q "start proxy success" ./frpc.log; then
+            echo "================frpc启动成功!================"
+            echo "=========检测为自定义配置,请自行连接ssh========="
+            echo "SSH_SETUP=success" >> $GITHUB_ENV
+          else
+            echo "警告：尝试启动frpc失败。请重新配置FRPC_CONFIG字段"
+            echo "SSH_SETUP=failure" >> $GITHUB_ENV
+          fi
         else
           # 生成随机端口并配置frpc
           max_attempts=10
@@ -149,64 +162,75 @@ jobs:
               echo "SSH_SETUP=failure" >> $GITHUB_ENV
           fi
         fi
-        
-    - name: Build firmware Manually
+
+    - name: Pause workflow
+      if: env.SSH_DEBUG == 'true'
       run: |
         if [ "${{ env.SSH_SETUP }}" == 'success' ]; then
-          echo "暂停工作流,${{ env.SSH_TIME }}后将继续进行工作流.可使用pkill sleep命令提前继续工作流"
-          sleep ${{ env.SSH_TIME }}
-          echo "${{ env.SSH_TIME }}时间结束,继续进行工作流"
+          if [ ! -f /usr/bin/gogogo ]; then #插入gogogo命令
+            echo '#!/bin/bash' > gogogo
+            echo 'sudo touch /home/runner/stop_signal' >> gogogo
+            sudo chmod a+x gogogo && sudo cp gogogo /usr/bin/
+            echo "================gogogo命令已加载!================"
+            echo "                                                "
+            echo "                                                "
+          else
+            echo "================gogogo命令已存在!================"
+            echo "                                                "
+            echo "                                                "
+          fi
+          #倒计时循环
+          echo -n -e "===================暂停工作流==================="
+          count=0  #分钟循环
+          while [ ! -f /home/runner/stop_signal ] && [ $count -lt ${{ env.SSH_TIME }} ]; do
+            inner_count=0  #秒钟循环
+            while [ $inner_count -lt 60 ]; do
+              echo -n -e "已过时间：$count分钟$inner_count秒,可使用gogogo命令提前继续工作流! \033[0K\r"
+              if [ -f /home/runner/stop_signal ]; then
+                break  # 如果文件存在，立即退出子循环
+              fi
+              sleep 1
+              inner_count=$((inner_count + 1))
+            done
+            count=$((count + 1))
+          done
+          # 循环结束后删除文件
+          sudo rm -f /home/runner/stop_signal
         else
-          echo "frpc启动失败，终止工作流!"
-          echo "frpc启动失败，终止工作流!"
-          echo "frpc启动失败，终止工作流!"
+          echo "==============frpc启动失败,终止工作流!==============="
+          echo "==============frpc启动失败,终止工作流!==============="
+          echo "==============frpc启动失败,终止工作流!==============="
           exit 1
         fi
 
     - name: Check compile
-      if: always()
-      id: compile
       run: |
         cd ${{ env.BD_PROJECT }}/bin/targets/*/*
         if [ -n "$(ls *.img.gz)" ]; then
-           echo "status=success" >> $GITHUB_OUTPUT
-           echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
-           echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
-           echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
-           echo "===========编译成功,准备上传==========="
-           echo "=============生成文件列表============="
-           ls -lh | awk '{print $9, $5}'
-           echo "==============清理文件中============="
-           rm -rf packages *kernel.bin *rootfs* *.json *.tar.zst
-           sleep 2
-           echo "=============上传文件列表============="
-           ls -lh | awk '{print $9, $5}'
-           echo "===================================="
+          echo "BD_COMPILE=success" >> $GITHUB_ENV
+          echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+          echo "DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
+          echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
+          uppercase_string=$(echo "${{ env.BD_PROJECT }}" | tr '[:lower:]' '[:upper:]')
+          echo "Uppercase_String=$uppercase_string" >> $GITHUB_ENV
+          echo "===========编译成功,准备上传==========="
         else
-          echo "COMPILE=failure" >> $GITHUB_ENV
+          echo "BD_COMPILE=failure" >> $GITHUB_ENV
           echo "===========编译失败,结束工作流==========="
           exit 1
         fi
 
-    - name : Upload artifact
-      uses: actions/upload-artifact@main
-      if: always() && steps.compile.outputs.status == 'success' && env.UPLOAD_ARTIFACT == 'true'
-      with:
-        name: ${{ env.BD_PROJECT }}-firmware-${{ env.BD_TARGET }}-${{ env.DATE }}
-        path: ${{ env.FIRMWARE_PATH }} 
-        retention-days: 2
-
     - name: Upload Firmware To Release
-      if: always() && steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true'
+      if: env.BD_COMPILE == 'success' && env.UPLOAD_RELEASE == 'true'
       uses: ncipollo/release-action@main
       with:
-        name: ${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.DATE }}_${{ env.REPO_BRANCH }}
+        name: ${{ env.DATE }}_${{ env.Uppercase_String }}_${{ env.BD_TARGET }}_${{ env.REPO_BRANCH }}
         allowUpdates: true
         tag: ${{ env.BD_PROJECT }}_${{ env.BD_TARGET }}_${{ env.REPO_BRANCH }}
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.FIRMWARE_PATH }}/*
         body: |
-          ===Firmware ${{ env.BD_PROJECT }} for ${{ env.BD_TARGET }}===
+          ===Firmware ${{ env.Uppercase_String }} for ${{ env.BD_TARGET }}===
           ### 📒 固件信息
           - 💻 平台架构: ${{ env.BD_TARGET }}
           - ⚽ 固件源码: ${{ env.REPO_URL }}
@@ -216,16 +240,37 @@ jobs:
           - 🔑 默认密码: 空       
 
           ### 📒 插件列表:
-            ```
-            ShadowSocksR Plus+
-            PassWall
-            Openclash
-            Netdata
-            Autotimeset
-            AdGuard Home
-            Mosdns
-            DDNS-go
-            ZeroTier
-            Openvpn
-            应用中心(iStore)
-            ```
+          ```
+          ShadowSocksR Plus+
+          PassWall
+          Openclash
+          Netdata
+          Autotimeset
+          AdGuard Home
+          Mosdns
+          DDNS-go
+          ZeroTier
+          Openvpn
+          应用中心(iStore)
+          ```
+
+    - name: Organize files
+      if: env.BD_COMPILE == 'success' && env.UPLOAD_ARTIFACT == 'true'
+      working-directory: ${{ env.FIRMWARE_PATH }}
+      run: |
+        echo "=============生成文件列表============="
+        ls -lh | awk '{print $9, $5}'
+        echo "==============清理文件中============="
+        rm -rf packages *kernel.bin *rootfs* *.json *.tar.zst
+        sleep 2
+        echo "=============上传文件列表============="
+        ls -lh | awk '{print $9, $5}'
+        echo "===================================="
+
+    - name : Upload artifact
+      uses: actions/upload-artifact@main
+      if: env.BD_COMPILE == 'success' && env.UPLOAD_ARTIFACT == 'true'
+      with:
+        name: ${{ env.BD_PROJECT }}-firmware-${{ env.BD_TARGET }}-${{ env.DATE }}
+        path: ${{ env.FIRMWARE_PATH }} 
+        retention-days: 2
