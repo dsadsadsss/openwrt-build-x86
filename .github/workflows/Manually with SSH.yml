@@ -66,10 +66,10 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo mkdir -p -m 777 /mnt/openwrt/dl /mnt/openwrt/bin /mnt/openwrt/staging_dir
-        ln -sf /mnt/openwrt/dl openwrt/dl
-        ln -sf /mnt/openwrt/bin openwrt/bin
-        ln -sf /mnt/openwrt/staging_dir openwrt/staging_dir
+        sudo mkdir -p -m 777 /mnt/${{ env.BD_PROJECT }}/dl /mnt/${{ env.BD_PROJECT }}/bin /mnt/${{ env.BD_PROJECT }}/staging_dir
+        ln -sf /mnt/${{ env.BD_PROJECT }}/dl ${{ env.BD_PROJECT }}/dl
+        ln -sf /mnt/${{ env.BD_PROJECT }}/bin ${{ env.BD_PROJECT }}/bin
+        ln -sf /mnt/${{ env.BD_PROJECT }}/staging_dir ${{ env.BD_PROJECT }}/staging_dir
 
     - name: Cache
       uses: HiGarfield/cachewrtbuild@main
