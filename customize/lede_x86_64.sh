@@ -67,13 +67,13 @@ sed -i '/exit 0/i sed -i "/small/d" /etc/opkg/distfeeds.conf' ./package/lean/def
 
 # 科学上网插件
 #git clone --depth=1 -b main https://github.com/fw876/helloworld package/luci-app-ssr-plus
-#git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall-packages package/openwrt-passwall
-#git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall package/luci-app-passwall
+git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall-packages package/openwrt-passwall
+git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall package/luci-app-passwall
 #git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall2 package/luci-app-passwall2
 #git_sparse_clone master https://github.com/vernesong/OpenClash luci-app-openclash
 
 # 更改 Argon 主题背景
-cp -f $GITHUB_WORKSPACE/bg.jpg package/luci-theme-argon/htdocs/luci-static/argon/img/bg.jpg
+cp -f $GITHUB_WORKSPACE/bg1.jpg package/luci-theme-argon/htdocs/luci-static/argon/img/bg.jpg
 
 # MosDNS
 # git clone --depth=1 https://github.com/sbwml/luci-app-mosdns package/luci-app-mosdns
