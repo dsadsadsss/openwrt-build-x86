@@ -164,8 +164,9 @@ jobs:
             echo "======================继续工作流======================="
             echo "SSH_SETUP=failure" >> $GITHUB_ENV
           fi
-        fi
-        
+        fi     
+
+
     - name: Pause workflow for custom
       if: env.SSH_DEBUG == 'true' && env.SSH_SETUP == 'success'
       run: |

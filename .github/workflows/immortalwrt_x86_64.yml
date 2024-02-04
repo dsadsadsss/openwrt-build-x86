@@ -165,7 +165,8 @@ jobs:
             echo "SSH_SETUP=failure" >> $GITHUB_ENV
           fi
         fi
-        
+
+
     - name: Pause workflow for custom
       if: env.SSH_DEBUG == 'true' && env.SSH_SETUP == 'success'
       run: |
@@ -230,7 +231,7 @@ jobs:
           if [ "${{ env.SSH_SETUP }}" == 'success' ]; then
             echo "BD_COMPILE=standby" >> $GITHUB_ENV
             echo "===========编译失败,暂停工作流==========="
-#### 留空等待添加编译失败通知功能
+####        留空等待添加编译失败通知功能
           else
             echo "===========编译失败,结束工作流==========="
             exit 1
